@@ -34,67 +34,77 @@ function w = load_seisan_file(fn)%dataRequest)
    w  = waveform; %initialize, in case nothing works
    MACHINEFORMAT = 'l';
    %disp('Little Endian');
-   fid = fopen(fn,'r',MACHINEFORMAT);
-   bytesToRead = fread(fid,1,'uint32');
-   if bytesToRead ~= 80
-      fclose(fid);
-      MACHINEFORMAT = 'b';
-      %disp('Switching to Big Endian');
-      fid = fopen(fn,'r',MACHINEFORMAT);
-      bytesToRead = fread(fid,1,'uint32');
-      if bytesToRead ~= 80
-         
-         warning('Waveform:load_seisan:invalidFileFormat',['File does not appear to be a SEISAN file,]'...
-            '[ or is an old PC version.\n This program is currently]',...
-            '[ incapable of opening PC SEISAN files older than V7.0']);
-         fclose(fid);
-         return
-      end
+   try
+       fid = fopen(fn,'r',MACHINEFORMAT);
+   catch ME
+       warning(['No such waveform file: ', char(fn)]);
+       return
    end
    
-   
-   fseek(fid,0,-1);
-   
-   nsta = 0;
-   for i=1:333;
-      bytesToRead = fread(fid,1,'uint32');
-      if bytesToRead == 80
-         st(1:80) = fread(fid,80,'char');
-         if i== 1
-            h = parseSeisanHeader(st);
-            nsta = h.stationCount;
-         end
-         
-         if i >= 3
-            for j=1:3
-               thisbit = st(((j-1) * 26 + 1):(j*26));
-               ch = parseSeisamChannelHeader(thisbit);
-            end
-         end
-         bytesRead = fread(fid,1,'uint32');
-         
-      else
-         break
-      end
+   if fid == -1
+       warning(['No such waveform file: ', char(fn)])
+   else
+       bytesToRead = fread(fid,1,'uint32');
+       if bytesToRead ~= 80
+          fclose(fid);
+          MACHINEFORMAT = 'b';
+          %disp('Switching to Big Endian');
+          fid = fopen(fn,'r',MACHINEFORMAT);
+          bytesToRead = fread(fid,1,'uint32');
+          if bytesToRead ~= 80
+
+             warning('Waveform:load_seisan:invalidFileFormat',['File does not appear to be a SEISAN file,]'...
+                '[ or is an old PC version.\n This program is currently]',...
+                '[ incapable of opening PC SEISAN files older than V7.0']);
+             fclose(fid);
+             return
+          end
+       end
+
+
+       fseek(fid,0,-1);
+
+       nsta = 0;
+       for i=1:333;
+          bytesToRead = fread(fid,1,'uint32');
+          if bytesToRead == 80
+             st(1:80) = fread(fid,80,'char');
+             if i== 1
+                h = parseSeisanHeader(st);
+                nsta = h.stationCount;
+             end
+
+             if i >= 3
+                for j=1:3
+                   thisbit = st(((j-1) * 26 + 1):(j*26));
+                   ch = parseSeisamChannelHeader(thisbit);
+                end
+             end
+             bytesRead = fread(fid,1,'uint32');
+
+          else
+             break
+          end
+       end
+
+       for j = 1: nsta
+          dt = fread(fid,1040,'char');
+          mydata = parseSeisamData(dt);
+          w(j) = waveform;
+          w(j) = set(w(j),'station',mydata.station,'channel',mydata.channel,...
+             'start',getStartTime(mydata),'freq',mydata.sampleRate);
+
+          nbytesread = fread(fid,1,'uint32'); %bytecount
+          bytestoread = fread(fid,1,'uint32'); %bytecount
+
+          rawdata = fread(fid,bytestoread / 4,'int32');
+          w(j) = set(w(j),'data',rawdata);
+
+          nbytesread = fread(fid,1,'uint32'); %bytecount
+          nbytesToread2 = fread(fid,1,'uint32'); %bytecount
+       end
+       fclose(fid);
    end
-   
-   for j = 1: nsta
-      dt = fread(fid,1040,'char');
-      mydata = parseSeisamData(dt);
-      w(j) = waveform;
-      w(j) = set(w(j),'station',mydata.station,'channel',mydata.channel,...
-         'start',getStartTime(mydata),'freq',mydata.sampleRate);
-      
-      nbytesread = fread(fid,1,'uint32'); %bytecount
-      bytestoread = fread(fid,1,'uint32'); %bytecount
-      
-      rawdata = fread(fid,bytestoread / 4,'int32');
-      w(j) = set(w(j),'data',rawdata);
-      
-      nbytesread = fread(fid,1,'uint32'); %bytecount
-      nbytesToread2 = fread(fid,1,'uint32'); %bytecount
-   end
-   fclose(fid);
 end
 
 function h = parseSeisanHeader(headerBlock)

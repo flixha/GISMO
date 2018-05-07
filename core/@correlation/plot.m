@@ -146,7 +146,12 @@ end;
 if strncmpi(plottype,'SHA',3)
     shadedplot(c,scale,ord);
 elseif strncmpi(plottype,'WIG',3)
-    wiggleplot(c,scale,ord,1);
+    if ~isempty(var5)
+        Y = var5(ord);
+    else
+        Y = [1:numel(ord)];
+    end
+    wiggleplot(c,scale,ord,1,Y);
 elseif strncmpi(plottype,'RAW',3)
     wiggleplot(c,scale,ord,0);
 elseif strncmpi(plottype,'OVE',3)

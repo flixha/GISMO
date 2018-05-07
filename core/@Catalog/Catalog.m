@@ -15,6 +15,9 @@ classdef Catalog
         etype = {};
         ontime = [];
         offtime = [];
+        arrivals = {};
+        wavfiles = {};  
+        focmec = {};
         
         numberOfEvents = 0;
   
@@ -33,7 +36,8 @@ classdef Catalog
 %         request.maximumRadius = Inf;
 %         request.minimumMagnitude = -Inf;
 %         request.maximumMagnitude = Inf;
-        arrivals = {};
+%         arrivals = {};
+%         wavfiles = {};
 %         magnitudes = {};
         waveforms = {}; % cell array with one vector waveform objects per event
     end
@@ -74,9 +78,15 @@ classdef Catalog
             p.addOptional('mag', [], @isnumeric);
             p.addOptional('magtype', {}, @iscell);
             p.addOptional('etype', {}, @iscell);
+            p.addOptional('arrivals', {}, @iscell)
+            p.addOptional('wavfiles', {}, @iscell)
+            p.addOptional('focmec', {}, @iscell)
             p.addParameter('request', struct(), @isstruct); % optional name-param pairs
             p.addParameter('ontime', [], @isnumeric)
             p.addParameter('offtime', [], @isnumeric)
+%             p.addParameter('arrivals', struct(), @isstruct)
+%             p.addParameter('wavfiles', struct(), @isstruct)
+
             %p.parse(otime, lon, lat, depth, mag, magtype, etype, varargin{:});
             p.parse(varargin{:});
             fields = fieldnames(p.Results);
@@ -143,8 +153,8 @@ classdef Catalog
                tstr = tstr(:,1:10);
 
                obj.table = table(otime, dstr, tstr, ...
-                   lon, lat, depth, mag, magtype, etype, ontime, offtime, ...
-                    'VariableNames', {'otime' 'yyyy_mm_dd' 'hh_mm_ss' 'lon' 'lat' 'depth' 'mag' 'magtype' 'etype' 'ontime' 'offtime'});   
+                   lon, lat, depth, mag, magtype, etype, ontime, offtime, arrivals, focmec, wavfiles, ...
+                    'VariableNames', {'otime' 'yyyy_mm_dd' 'hh_mm_ss' 'lon' 'lat' 'depth' 'mag' 'magtype' 'etype' 'ontime' 'offtime' 'arrivals' 'focmec' 'wavfiles'});   
 
                 obj.table = sortrows(obj.table, 'otime', 'ascend'); 
                 fprintf('Got %d events\n',obj.numberOfEvents);
@@ -186,6 +196,18 @@ classdef Catalog
         
         function val = get.offtime(obj)
             val = obj.table.offtime;
+        end
+        
+        function val = get.arrivals(obj)
+            val = obj.table.arrivals;
+        end
+        
+        function val = get.wavfiles(obj)
+            val = obj.table.wavfiles;
+        end
+        
+        function val = get.focmec(obj)
+            val = obj.table.focmec;
         end
         
         function val = get.numberOfEvents(obj)

@@ -6,7 +6,6 @@ function self = seisan(varargin)
     debug.printfunctionstack('>')
     
     % Process input arguments
-    % Process input arguments
     p = inputParser;
     p.addParameter('dbpath', '', @isstr);
     p.addParameter('startTime', -Inf);  
@@ -30,8 +29,8 @@ function self = seisan(varargin)
     
     p.parse(varargin{:});
     fields = fieldnames(p.Results);
-    for i=1:length(fields)
-        field=fields{i};
+    for j=1:length(fields)
+        field=fields{j};
         % val = eval(sprintf('p.Results.%s;',field));
         val = p.Results.(field);
         eval(sprintf('%s = val;',field));
@@ -87,32 +86,51 @@ function self = seisan(varargin)
     sfiles = Sfile.list_sfiles(dbpath, snum, enum);
     
     % loop over sfiles
-    for i=1:length(sfiles)
+    for j=1:length(sfiles)
         % read 
-        fprintf('Processing %s\n',fullfile(sfiles(i).dir, sfiles(i).name));
-        thiss = Sfile(fileread(fullfile(sfiles(i).dir, sfiles(i).name)));
+        fprintf('Processing %s\n',fullfile(sfiles(j).dir, sfiles(j).name));
+        thiss = Sfile(fileread(fullfile(sfiles(j).dir, sfiles(j).name)));
         try
-            s(i)=thiss;
+            s(j)=thiss;
         catch
-            s(i)
+            s(j)
             thiss
             error('Wrong number of fields?')
         end
 
         % add to catalog
-        dnum(i)  = s(i).otime;
-        etype{i} = s(i).subclass;
-        lat(i) = s(i).latitude;
-        lon(i) = s(i).longitude;
-        depth(i) = s(i).depth;
+        dnum(j)  = s(j).otime;
+%         etype{j} = s(j).subclass;
+        etype{j} = s(j).mainclass;
+        lat(j) = s(j).latitude;
+        lon(j) = s(j).longitude;
+        depth(j) = s(j).depth;
+        arrivals{j}=s(j).arrivals;
+        wavfiles{j}=s(j).wavfiles;
+        focmec{j}=s(j).focmec;
+        
+%         loadWaveforms=true;
+%         if loadWaveforms
+%             ds = datasource('seisan', s(j).wavfiles);
+%             scnl = scnlobject('*', 'BHZ');
+%             starttime = datenum(2001,2,2,03,03,00);
+%             endtime=datenum(2001,2,2,03,23,00);
+%             w3 = waveform(ds, scnl, starttime, endtime)
+%         end
+        
+%         Load Waveform files from seisan database
+%         s(j).wavfiles
+        
         
         % SCAFFOLD
-        mag(i) = NaN;
+        mag(j) = NaN;
         try
-            sfile_mags = [s(i).magnitude.value];
+            sfile_mags = [s(j).magnitude.value];
             if ~isempty(sfile_mags)
                 disp('**************** ********************')
-                mag(i) = max(sfile_mags);
+                %changed this  - @felix halpaap
+%                 mag(j) = max(sfile_mags);
+                mag(j) = min(sfile_mags);
             end
         end
 
@@ -125,13 +143,13 @@ function self = seisan(varargin)
     
     % save request
     fields = fieldnames(p.Results);
-    for i=1:length(fields)
-        field=fields{i};
+    for j=1:length(fields)
+        field=fields{j};
         eval(sprintf('request.%s = eval(field);',field));
     end 
     
     % create Catalog object
-    self = Catalog(dnum', lon', lat', depth', mag', magtype', etype', 'request', request);
+    self = Catalog(dnum', lon', lat', depth', mag', magtype', etype', 'request', request, 'arrivals', arrivals', 'wavfiles' , wavfiles','focmec', focmec');
     request.startTime = snum;
     request.endTime = enum;
     self.request = request;

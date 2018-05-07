@@ -7,8 +7,9 @@ classdef Sfile
         wavfiles = {}
         year = NaN
         month = NaN
+        day = NaN
         otime = NaN
-        magnitude = NaN
+        magnitude = struct()
         longitude = NaN
         latitude = NaN
         depth = NaN
@@ -17,6 +18,7 @@ classdef Sfile
         gap = NaN
         error = struct()
         rms = NaN
+        arrivals = struct()
         focmec = struct()
         maximum_intensity = ''
         url = ''
@@ -64,9 +66,13 @@ classdef Sfile
             % Read lines into cell array
             lines = strread(fileContents, '%s', 'delimiter', sprintf('\n'));
             linenum = 1;
+            k=0; %arrival count
 
-			while linenum <= numel(lines),
-                tline = fileContents(1+(linenum-1)*82:min([length(fileContents) 80+(linenum-1)*82]));
+            lineOneRead = false;
+			while linenum <= numel(lines)
+%                 tline=string(lines(linenum));
+                tline = fileContents(1+(linenum-1)*81:min([length(fileContents) 80+(linenum-1)*81]));
+                
                 linenum = linenum + 1;
                 %disp(sprintf('*%s*',tline));
                 linelength=length(tline); 
@@ -76,11 +82,13 @@ classdef Sfile
                     continue
                 end
                 
-                if lineend == '1'
+                %should only read the first type 1-line
+                if lineend == '1' && ~lineOneRead
+                    lineOneRead = true;
                     if length(strtrim(tline(2:20)))  >= 14
                         s.year = str2num(tline(2:5));
                         s.month = str2num(tline(7:8));
-                        day = str2num(tline(9:10));
+                        s.day = str2num(tline(9:10));
                         hour = str2num(tline(12:13));
                         minute = str2num(tline(14:15));
                         second = str2num(tline(17:20));
@@ -88,9 +96,10 @@ classdef Sfile
                             minute = minute + 1;
                             second = second - 60.0;
                         end
-                        s.otime = datenum(s.year, s.month, day, hour, minute, floor(second));
+                        s.otime = datenum(s.year, s.month, s.day, hour, minute, second);
                     end
-                    s.mainclass = strtrim(tline(22:23));
+%                     s.mainclass = strtrim(tline(22:23));
+                    s.mainclass = tline(22:23);
                     lat = str2num(tline(24:30));
                     lon = str2num(tline(31:38));
                     depth = str2num(tline(39:43));
@@ -158,10 +167,10 @@ classdef Sfile
                                     end
                                     %aef.eng(aeflinenum)=str2num(tline(30:37));
                                     aef.eng(aeflinenum)=str2num(tline(28:35));
-                                    for i = 1:11
+                                    for j = 1:11
                                         %startindex = (i-1)*3 + 40;
-                                        startindex = (i-1)*3 + 38;
-                                        ssam(i) = str2num(tline(startindex:startindex+1));
+                                        startindex = (j-1)*3 + 38;
+                                        ssam(j) = str2num(tline(startindex:startindex+1));
                                     end
                                     aef.ssam{aeflinenum} = ssam;
                                     aef.pkf(aeflinenum)=str2num(tline(73:77));   % Peak frequency (Frequency of the largest peak
@@ -180,9 +189,18 @@ classdef Sfile
                 end
 
                 if lineend == '6'
-                    s.wavfiles = strread(strtrim(tline(2:79)), '%s');
+                    nWavFiles = length(s.wavfiles);
+                    wavfile = strread(strtrim(tline(2:79)), '%s');
+                    if length(wavfile) == 1
+                        s.wavfiles(nWavFiles+1,1) = strread(strtrim(tline(2:79)), '%s');
+                    end
+%                     s.wavfiles = strread(strtrim(tline(2:79)), '%s');
                     %wavfile{1} = tline(2:36);
                 end
+                
+%                 if lineend == '7'
+%                    
+%                 end
 
                 % Process Type E line, Hyp error estimates
                 if lineend == 'E'
@@ -198,7 +216,7 @@ classdef Sfile
 
                 % Process Type F line, Fault plane solution
                 % Format has changed need to fix AAH - 2011-06-23
-                if lineend == 'F' %and not s.focmec.has_key('dip'):
+                if lineend == 'F' & ~isfield(s.focmec,'dip') %and not s.focmec.has_key('dip'):
                     s.focmec.strike=str2num(tline(1:10));
                     s.focmec.dip=str2num(tline(11:20));
                     s.focmec.rake=str2num(tline(21:30));
@@ -229,7 +247,56 @@ classdef Sfile
                     s.action_time=strtrim(tline(13:26));
                     s.analyst = strtrim(tline(31:33));
                     s.id = str2num(tline(61:74));
-                end  
+                end
+                
+%                 if addarrivals
+                if lineend == ' ' && ~strcmp(strtrim(tline(11:14)),'')
+                    %If there is already a pick for the station in this
+                    %line, sort it into the same line as the old pick
+                    %accordingly
+                    stacode=strtrim(tline(2:6));
+                    if k>0 && ~isempty(s.arrivals)
+                        staI = find(strcmp({s.arrivals.stacode}, stacode)==1);
+                    end
+                    
+                    if k==0 || isempty(s.arrivals) || isempty(staI)
+                        k=k+1;
+                        staI=k;
+                    end
+                    
+                    s.arrivals(staI).stacode=strtrim(tline(2:6));
+                    s.arrivals(staI).inst=strtrim(tline(7));
+                    pha=strtrim(tline(11:14));
+                    % phase prefix for the structure's field name
+                    fP=lower(pha);
+                    
+                    s.arrivals(staI).([fP,'_comp'])=strtrim(tline(8));
+                    s.arrivals(staI).([fP,'_eori'])=strtrim(tline(10));
+                    s.arrivals(staI).([fP,'_pha'])=strtrim(tline(11:14));
+                    s.arrivals(staI).([fP,'_userwgt'])=str2num(tline(15));
+                    s.arrivals(staI).([fP,'_picktype'])=strtrim(tline(16));
+                    s.arrivals(staI).([fP,'_polarity'])=strtrim(tline(17));
+
+                    a_hr=str2num(tline(19:20));
+                    s.arrivals(staI).([fP,'_hr'])=a_hr;
+                    a_mm=str2num(tline(21:22));
+                    s.arrivals(staI).([fP,'_mm'])=a_mm;
+                    a_sec=str2num(tline(23:28));
+                    s.arrivals(staI).([fP,'_sec'])=a_sec;
+                    s.arrivals(staI).([fP,'_time'])=datenum(s.year, s.month, s.day, a_hr, a_mm, a_sec);
+
+                    s.arrivals(staI).([fP,'_codalen'])=str2num(tline(30:33));
+                    s.arrivals(staI).([fP,'_amp'])=str2num(tline(34:40));
+                    s.arrivals(staI).([fP,'_peri'])=str2num(tline(42:45));
+                    s.arrivals(staI).([fP,'_azi'])=str2num(tline(47:51));
+                    s.arrivals(staI).([fP,'_velo'])=str2num(tline(53:56));
+                    s.arrivals(staI).([fP,'_aofinc'])=str2num(tline(57:60));
+                    s.arrivals(staI).([fP,'_azres'])=str2num(tline(61:63));
+                    s.arrivals(staI).([fP,'_tres'])=str2num(tline(64:68));
+                    s.arrivals(staI).([fP,'_wgt'])=str2num(tline(69:70));
+                    s.arrivals(staI).([fP,'_dis'])=str2num(tline(71:75));
+                    s.arrivals(staI).([fP,'_caz'])=str2num(tline(77:79));
+                end
 
                 if tline(2:8)=='trigger' 
                     s.bbdur=str2num(tline(18:19)); % EARTHWORM TRIGGER DURATION (including pre & posttrigger times?)
@@ -305,8 +372,15 @@ classdef Sfile
             sdv = datevec(snum);
             edv = datevec(enum);
             fileindex = 0;
-            for yyyy=sdv(1):edv(1)
-               for mm=sdv(2):edv(2)
+            
+            years = sdv(1):edv(1);
+            if length(years) > 1
+               reqMonths = 1:12;
+            else
+               reqMonths = sdv(2):edv(2);
+            end            
+            for yyyy= [years]
+               for mm=[reqMonths]
                    seisandir = fullfile(dbpath, sprintf('%4d',yyyy), sprintf('%02d',mm) );
                    newfiles = dir(fullfile(seisandir, sprintf('*%4d%02d',yyyy,mm)));
                    for i=1:length(newfiles)

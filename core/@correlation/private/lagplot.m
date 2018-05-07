@@ -19,7 +19,7 @@ n = length(c.trig);
 set(gca,'XTick',[1:round(n/25):n]);
 set(gca,'YTick',[1:round(n/25):n]);
 yt = get(gca,'YTick');
-set(gca,'YTickLabel',datestr(c.trig(yt),'yyyy-mm-dd HH:MM'),'FontSize',6);
+set(gca,'YTickLabel',datestr(c.trig(yt),'yyyy-mm-dd HH:MM'),'FontSize',8);
 
 
 % DRESS UP THE FIGURE

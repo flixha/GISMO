@@ -38,6 +38,7 @@ c1.W = c.W;
 c1.trig = c.trig;
 for i = 1:howmany
     index{i} = find(c,'CLU',i);
+    clustN(i) = c.clust(index{i}(1));
     ntraces(i) = length(index{i});
     c1 = stack(c1,index{i});
 end
@@ -49,7 +50,7 @@ plot(c1,'wig',scale);
 set(gcf,'Position',[50 500 850 300]);
 Xlim = get(gca,'Xlim');
 for i = 1:length(index)
-    text(Xlim(1),i-0.3,['  #' num2str(i) ' (' num2str(ntraces(i)) ' traces)'],'HorizontalAlignment','Left');
+    text(Xlim(1),i-0.3,['  #' num2str(clustN(i)) ' (' num2str(ntraces(i)) ' traces)'],'HorizontalAlignment','Left');
 end
 
 
@@ -62,7 +63,7 @@ for i = 1:length(ntraces)
     t = index{i};
     plot([xleft xright],[i i],'k:');
     plot(c.trig(index{i}),i*ones(size(index{i})),'ko','MarkerFaceColor',[.5 .5 1]);
-    text(xleft,i-0.3,['  #' num2str(i)],'HorizontalAlignment','Left');
+    text(xleft,i-0.3,['  #' num2str(clustN(i))],'HorizontalAlignment','Left');
 end
 set(gca,'YTick',[]);
 set(gca,'YDir','reverse');

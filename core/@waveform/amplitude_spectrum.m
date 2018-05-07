@@ -1,4 +1,4 @@
-function s = plot_spectrum(w)
+function s = amplitude_spectrum(w)
     % add_spectral_data Simple method to compute frequency
     % spectrum for a vector waveform object. Uses the MATLAB fft function.
     %   w = add_spectral_data(w)
@@ -16,20 +16,8 @@ function s = plot_spectrum(w)
     %           freqindex - frequency index (Buurman & West)
     %           freqratio - frequency ratio (Rodgers)
     %
-    %   Example 1 (for a single waveform object, w):
-    %       s = add_spectral_values(w)
-    %       semilogx(s.f, s.amp)
-    %       xlabel('Frequency (Hz)')
-    %       ylabel('Amplitude');
-    %       
-    %   Example 2 (for a waveform vector, w)
-    %       s = add_spectral_values(w);
-    %       t = get(w, 'start')
-    %       peakf = [s.peakf];
-    %       plot(t, peakf,'o')
-    %       datetick('x')
-    %
     %   Glenn Thompson, May 21, 2016 after amplitude_spectrum function of November 21, 2014.
+    %  edited Felix Halpaap, November 10, 2017
     
 	% Check input is a waveform object
 	if ~isa(w, 'waveform')
@@ -37,10 +25,7 @@ function s = plot_spectrum(w)
 		return
     end
     
-    colours = 'rgbmcyk';
-    figure
     for count = 1:numel(w)
-        colour = colours(mod(count, 7) + 1);
         Fsamp= get(w(count), 'freq');
         signal=get(w(count), 'data');
         Nsignal=length(signal);
@@ -50,14 +35,9 @@ function s = plot_spectrum(w)
         A=2*abs(Y(1:NumUniquePts))/Nsignal;
         phi = angle(Y(1:NumUniquePts));
         f = Fsamp/2*linspace(0,1,NumUniquePts);
-        ax(count)=subplot(numel(w), 1, count);
-        loglog(f, A, colour); hold on;
-        axis tight;
-        ctag = get(w(count),'ChannelTag');
-        %title(ctag.string());
-        xlabel('f (Hz)')
-        ylabel('Amp')
         
+        ctag = get(w(count),'ChannelTag');
+                
         % add spectrum vectors to a structure
         s(count).f = f; % frequencies
         s(count).amp = A'; % amplitude 
@@ -81,6 +61,4 @@ function s = plot_spectrum(w)
        
     end
     ctags = get(w,'ChannelTag');
-    legend(ctags.string(),'location', 'south')
-    linkaxes(ax,'x');
 end

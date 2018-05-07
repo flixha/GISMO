@@ -1,4 +1,4 @@
-function wiggleplot(c,scale,ord,norm)
+function wiggleplot(c,scale,ord,norm,Y)
 
 % Private method. See ../plot for details.
 
@@ -23,19 +23,24 @@ for count = 1:numel(ord)
         wstartrel(count) + [ 0:lengths(count)-1]'/freq(count);
 end;
 
+
+% Y=[1:numel(ord)];
+if size(Y,2) > size(Y,1)
+    Y = Y';
+end
 % scale is negative because it is reversed below
 if norm==0
     % GET MEAN TRACE AMPLITUDE FOR SCALING BELOW (when norm = 0)
     maxlist = max(abs(c.W(ord)));
     normval = mean(maxlist);
-    d =  double(c.W(ord) .*( -scale ./ normval)+ [1:numel(ord)]','nan'); % do not normalize trace amplitudes
+    d =  double(c.W(ord) .*( -scale ./ normval)+ Y,'nan'); % do not normalize trace amplitudes
 else
     abs_max(abs_max==0) = 1; % ignore zero traces
     
-    d = double(c.W(ord) .* (-scale ./ abs_max)+[1:numel(ord)]','nan'); % normalize trace amplitudes
+    d = double(c.W(ord) .* (-scale ./ abs_max)+ Y,'nan'); % normalize trace amplitudes
 end
 
-plot(tr,d,'b-','LineWidth',1);
+plot(tr,d,'b-','LineWidth',0.2);
 
 % adjust figure
 %axis([tmin tmax 0 length(ord)+1]);
@@ -43,7 +48,7 @@ axis([min(tr(:)) max(tr(:)) 0 length(ord)+1]);
 set(gca,'YDir','reverse',...
     'YTick',1:length(ord),...
     'YTickLabel',datestr(c.trig(ord),'yyyy-mm-dd HH:MM:SS'),...
-    'FontSize',6);
+    'FontSize',8);
 
 xlabel('Relative Time,(s)','FontSize',8);
 
