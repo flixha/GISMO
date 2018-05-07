@@ -9,7 +9,7 @@ function corrplot(c)
 
 % PREP PLOT
 figure('Color','w','Position',[50 50 600 500]);
-set(gcf,'DefaultAxesFontSize',14);
+set(gcf,'DefaultAxesFontSize',10);
 imagesc(c.C);
 title('Maximum correlation coefficient');
 
@@ -22,7 +22,7 @@ yt = get(gca,'YTick');
 set(gca,'YTickLabel',datestr(c.trig(yt),'yyyy-mm-dd HH:MM'),'FontSize',6);
 
 %xt = get(gca,'XTick');
-%set(gca,'XTickLabel',datestr(c.trig(xt),'yyyy-mm-dd HH:MM'),'FontSize',6,'Rotation',90);
+%set(gca,'XTickLabel',datestr(c.trig(xt),'yyyy-mm-dd HH:MM'),'FontSize',8,'Rotation',90);
 
 
 % DRESS UP THE FIGURE

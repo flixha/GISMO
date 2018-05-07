@@ -43,8 +43,8 @@ end
 % 	height = 1200;
 % end;
 height = 1200;
-figure('Color','w','Position',[20 20 1000 height]);
-set(gcf,'DefaultAxesFontSize',12);
+fig = figure('Color','w','Position',[20 20 1000 height]);
+set(fig,'DefaultAxesFontSize',12);
 
 % GET HISTOGRAM BINS
 nmax = numel(clusternum);
@@ -58,9 +58,9 @@ end
 
 % LOOP THROUGH CLUSTERS
 for n = 1:nmax
-	f = find(c,'clu',clusternum(n));
+	f = find(c,'clu',n);
     c1 = subset(c,f);
-	doplotrow(c1,n,nmax,bins,clusternum(n));
+	doplotrow(fig,c1,n,nmax,bins,clusternum(n));
 end;
 %subplot(nmax,2,nmax*2-1);
 %binsize = bins(2)-bins(1);
@@ -68,9 +68,9 @@ end;
 
 
 %PRINT OUT FIGURE
-set(gcf, 'paperorientation', 'portrait');
-set(gcf, 'paperposition', [.25 .25 8 10.5] );
-print(gcf, '-depsc2', 'FIG.ps')
+set(fig, 'paperorientation', 'portrait');
+set(fig, 'paperposition', [.25 .25 8 10.5] );
+print(fig, '-depsc2', 'FIG.ps')
 
 
 
@@ -80,7 +80,7 @@ print(gcf, '-depsc2', 'FIG.ps')
 % DOPLOTROW
 % This function plots one row of the figure
 
-function doplotrow(c1,n,nmax,bins,nclust)
+function doplotrow(fig,c1,n,nmax,bins,nclust)
 
 
 if ~isempty(get(c1,'LAG'))
@@ -96,6 +96,7 @@ end
 
 
 % DO HISTOGRAM PLOT
+set(0,'CurrentFigure',fig)
 subplot('Position',[.07 .99-.094*n .42 .09]);
 T = get(c1,'TRIG');
 N = histc(T,bins);
@@ -117,6 +118,7 @@ text(PosX,PosY,['Cluster #' num2str(nclust)],'Color','k','FontWeight','bold');
  
 
 % DO STACK PLOT
+set(0,'CurrentFigure',fig)
 thisax = subplot('Position',[.5 .99-.094*n .47 .09]);
 c1 = subset(c1,include);
 Ts = 86400*(get(c1.W,'START')-c1.trig);

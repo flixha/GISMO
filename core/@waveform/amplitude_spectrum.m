@@ -50,8 +50,14 @@ function s = amplitude_spectrum(w)
         %A=smooth(A,100);
         phi = angle(Y(1:NumUniquePts));
         f = Fsamp/2*linspace(0,1,NumUniquePts);
-        
 
+        ax(count)=subplot(numel(w), 1, count);
+        loglog(f, A, colour); hold on;
+        axis tight;
+        ctag = get(w(count),'ChannelTag');
+        %title(ctag.string());
+        xlabel('f (Hz)')
+        ylabel('Amp')
         
         % add spectrum vectors to a structure
         s(count).f = f; % frequencies

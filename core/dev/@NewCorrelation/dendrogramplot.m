@@ -14,6 +14,7 @@ function dendrogramplot(c)
    
    
    % CREATE DENDROGRAM PLOT
+   figure
    [~,~,perm] = dendrogram(c.link,length(c.trig),'Orientation','right');
    set(gcf,'Color','w','Position',[50 50 680 880]);
    ylabel('event number','FontSize',16);
@@ -44,6 +45,7 @@ function dendrogramplot(c)
    
    % ADD WIGGLE PLOT
    perm = fliplr(perm);
+   figure
    if length(perm)>=100
       plot(c,'sha',1,perm);
    else
