@@ -42,7 +42,7 @@ function cOut = resampleNetworkCorrObject(c, targetSamplingRate)
                 ResampleD = resample(D,P,Q);
             end
 
-            parfor w=1:1:numel(wavs)
+            for w=1:1:numel(wavs) % can be safely parallelized with "parfor"
                 wav = wavs(w);
                 % put back into waveform, but don't forget to 
                 % update the frequency               
