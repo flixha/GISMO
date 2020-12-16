@@ -73,7 +73,7 @@ end
 c1 = correlation;
 c1 = set(c1,'WAVEFORM', get(c,'WAVEFORM') );
 c1 = set(c1,'TRIG', get(c,'TRIG') );
-if exist('index')               % Is this necessary?
+if exist('index','var')               % Is this necessary?
    c1 = subset(c1,index); 
 end
 

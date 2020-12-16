@@ -58,9 +58,9 @@ if length(varargin) >= 2
     width = varargin{2};
 else
     width = 86400 * get(TC(1).traces(1),'DURATION' ) / 10; % 10
+    disp(['Time step: ' num2str(dt,'%4.3f') '    Window width: ',...
+        num2str(width,'%4.3f') ]);
 end
-
-disp(['Time step: ' num2str(dt,'%4.3f') '    Window width: ' num2str(width,'%4.3f') ]);
 
 
 % CHECK ORIENTATIONS
@@ -171,7 +171,8 @@ end
         
   
 % SET THREECOMP PROPERTIES
-basicWave = waveform(get(w(1),'station'),'JUNK',1/dt,Tstart,[]);
+% basicWave = waveform(get(w(1),'station'),'JUNK',1/dt,Tstart,[]);
+basicWave = waveform(['.',get(w(1),'station'),'..JUNK'],1/dt,Tstart,[]);
 rec = set(basicWave,'channel','Rectilinearity','data',pm.Rec,'units','Fraction 0-1 (arbitrary units. Range 0-1)');
 rec = addfield(rec,'THREECOMP_WINDOW',width);
 

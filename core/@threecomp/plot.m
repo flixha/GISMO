@@ -152,8 +152,8 @@ w = scale * w./normval;			% do not normalize trace amplitudes
 w(1) = w(1)+1;
 w(2) = w(2)+0;
 w(3) = w(3)-1;
-h = plot(Xvalues, double(w,'nan') , varargin{:}, 'axeshandle', gca );
-xlim([min(Xvalues(:,1)) max(Xvalues(:,1))], 'axeshandle', gca);
+h = plot(gca, Xvalues, double(w,'nan') , varargin{:} );
+xlim(gca, [min(Xvalues(:,1)) max(Xvalues(:,1))]);
 
 
 % ADJUST DEFAULT TRACE COLORS

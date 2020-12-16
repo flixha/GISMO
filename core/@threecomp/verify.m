@@ -99,16 +99,22 @@ end
 
 % CHECK ARRANGEMENT OF CHANNELS IN WAVEFORM OBJECT
 channels = get(TC.traces,'CHANNEL');
+pos = 3;
+channelTagLength = length(channels{1});
+if channelTagLength >= 3
+    pos = channelTagLength;
+end
+
 if any([ length(channels{1})<3 length(channels{2})<3 length(channels{3})<3 ])
     disp(['problem in element ' num ': channel codes have less than three characters']);
     conflict(7) = '1';
-elseif ~strcmpi(channels{1}(3),'Z')
+elseif ~strcmpi(channels{1}(pos),'Z')
     disp(['problem in element ' num ': First channel character is not Z component']);
     conflict(7) = '1';
-elseif ~strcmpi(channels{2}(3),'N') && ~strcmpi(channels{1,2}(end),'R') && ~strcmpi(channels{1,2}(end),'1')
+elseif ~strcmpi(channels{2}(pos),'N') && ~strcmpi(channels{1,2}(end),'R') && ~strcmpi(channels{1,2}(end),'1')
     disp(['problem in element ' num ': channel character is not N, R, or 2 component']);
     conflict(7) = '1';
-elseif ~strcmpi(channels{3}(3),'E') && ~strcmpi(channels{1,3}(end),'T') && ~strcmpi(channels{1,3}(end),'2')
+elseif ~strcmpi(channels{3}(pos),'E') && ~strcmpi(channels{1,3}(end),'T') && ~strcmpi(channels{1,3}(end),'2')
     disp(['problem in element ' num ': Third channel character is not E, T, or 1 component']);
     conflict(7) = '1';
 end

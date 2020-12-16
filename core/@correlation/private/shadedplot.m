@@ -23,7 +23,7 @@ wFs = get(c.W(ord),'Freq');
 for i = 1:numel(ord)
 	%wstartrel = 86400*(get(c.W(i),'START_MATLAB')-c.trig(i));	% relative start time (trigger is at zero)
         %tr = wstartrel + [ 0:get(c.W(i),'DATA_LENGTH')-1]'/get(c.W(i),'Fs');      
-        tr = wstartrels(i) + [ 0:wlengths(i)-1]'/wFs(i); 
+    tr = wstartrels(i) + [ 0:wlengths(i)-1]'/wFs(i); 
 
     % save min and max relative trace times
 	if tr(1) < tmin

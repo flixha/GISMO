@@ -49,14 +49,17 @@ function w = detrend (w, varargin)
       % should also get detrended. A more sophisticated method might define
       % breakpoints for detrending.
       good_data_indices = find(~isnan(d));
-      first_good_index = good_data_indices(1);
-      last_good_index = good_data_indices(end);
-      d2 = d(first_good_index:last_good_index);
-      still_missing_data_indices = find(isnan(d2));
-      d2(isnan(d2)) = interp1(find(~isnan(d2)), d2(~isnan(d2)), find(isnan(d2)),'linear');
-      d2 = detrend(d2,varargin{:});
-      d2(still_missing_data_indices) = NaN;
-      d(first_good_index:last_good_index) = d2;
+      % Only proceeed if there is real data (not all NaN)
+      if length(good_data_indices) > 1
+          first_good_index = good_data_indices(1);
+          last_good_index = good_data_indices(end);
+          d2 = d(first_good_index:last_good_index);
+          still_missing_data_indices = find(isnan(d2));
+          d2(isnan(d2)) = interp1(find(~isnan(d2)), d2(~isnan(d2)), find(isnan(d2)),'linear');
+          d2 = detrend(d2,varargin{:});
+          d2(still_missing_data_indices) = NaN;
+          d(first_good_index:last_good_index) = d2;
+      end
       
       %w(I).data = detrend(d,varargin{:});
       w(I).data = d;

@@ -56,7 +56,7 @@ end
 function w = mseedfilename2waveform(thisfilename, snum, enum)
     s = ReadMSEEDFast(thisfilename); % written by Martin Mityska
      for c=1:numel(s)
-        w(c) = waveform(ChannelTag(s(c).network, s(c).station, s(c).location, s(c).channel), ...
+        w(c,1) = waveform(ChannelTag(s(c).network, s(c).station, s(c).location, s(c).channel), ...
             s(c).sampleRate, epoch2datenum(s(c).startTime), s(c).data);
      end
 end

@@ -380,6 +380,8 @@ classdef Sfile
                reqMonths = sdv(2):edv(2);
             end            
             for yyyy= [years]
+                disp(['finding files in year ' num2str(yyyy)])
+                tic
                for mm=[reqMonths]
                    seisandir = fullfile(dbpath, sprintf('%4d',yyyy), sprintf('%02d',mm) );
                    newfiles = dir(fullfile(seisandir, sprintf('*%4d%02d',yyyy,mm)));
@@ -394,6 +396,7 @@ classdef Sfile
                        end
                    end
                end
+               toc
             end
 
             %% Echo the list of matching sfiles

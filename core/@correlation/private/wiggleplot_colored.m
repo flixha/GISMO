@@ -19,16 +19,13 @@ lengths = get(c.W(ord),'data_length');
 tr = nan(max(lengths),numel(ord)); %pre allocate with nan to not plot
 abs_max =  max(abs(c.W(ord)));
 for count = 1:numel(ord)
+    % time vector per trace
     tr(1:lengths(count),count) = ...
-        wstartrel(count) + [ 0:lengths(count)-1]'/freq(count);
+        wstartrel(count) + [ 0:lengths(count)-1]'/freq(count);   
 end;
 
-if ~exist('Y','var')
-    Y = [];
-end
-if isempty(Y)
-    Y=[1:numel(ord)];
-end
+
+% Y=[1:numel(ord)];
 if size(Y,2) > size(Y,1)
     Y = Y';
 end
@@ -44,7 +41,28 @@ else
     d = double(c.W(ord) .* (-scale ./ abs_max)+ Y,'nan'); % normalize trace amplitudes
 end
 
+% amount of whitespace from trace mean before coloring begins
+whiteAreRatio = 0.05;
+%wb = (Y' - scale) .* whiteAreRatio;
+wb = scale  .* whiteAreRatio;
+
+%red fill (positive)
+% Y: trace offset from 0; wb: no-color area; sign... is 1 if trace above threshold; d-wb is :
+redmat = Y' + wb  + (sign( d - Y' - wb) + 1)/2 .* (d -Y' - wb);
+%blue fill (negative)
+bluemat = Y' - wb + (sign(-(d - Y' + wb)) + 1)/2 .* (d -Y' + wb);
+
+
+hold on
+
+fill(tr, bluemat, 'b','LineStyle','none','EdgeColor',[1 1 1]);
+fill(tr, redmat, 'r','LineStyle','none','EdgeColor',[1 1 1]);
+
 plot(tr,d,'k-','LineWidth',0.2);
+
+% fill(tr, bluemat, 'b','LineStyle','none','EdgeColor',[1 1 1]);
+% fill(tr, redmat, 'r','LineStyle','none','EdgeColor',[1 1 1]);
+
 
 % adjust figure
 %axis([tmin tmax 0 length(ord)+1]);

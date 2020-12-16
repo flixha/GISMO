@@ -99,7 +99,12 @@ for c=1:numw
     data = get(w(c), 'data');
     
     if length(data) > nfft
-        [S,F,T] = spectrogram(data, nfft, nfft/2, nfft, fsamp);
+%         f = logspace(log(1/nfft),log(nfft),100);
+        f = linspace(1/nfft*2, nfft,nfft*4);
+%         f = 2.^(linspace(log2(1/nfft),log2(2*nfft),50));
+%         [S,F,T] = spectrogram(data, nfft, nfft/2, f, fsamp);
+        [S,F,T] = spectrogram(data, nfft, overlap, f, fsamp);
+%         [S,F,T] = spectrogram(data, nfft, nfft/2, nfft, fsamp);
 
         Y = 20*log10(abs(S)+eps);
         index = find(F <= fmax);

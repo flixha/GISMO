@@ -27,7 +27,7 @@ function plot_panels(w, varargin)
     end
     
     p = inputParser;
-    p.addParameter('alignWaveforms', false, @isnumeric); % optional name-param pairs
+    p.addParameter('alignWaveforms', false, @islogical); % optional name-param pairs
     p.addParameter('visible', 'on', @isstr)
     p.addParameter('arrivals', [])
     p.parse(varargin{:});

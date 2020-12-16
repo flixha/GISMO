@@ -152,8 +152,43 @@ elseif strncmpi(plottype,'WIG',3)
         Y = [1:numel(ord)];
     end
     wiggleplot(c,scale,ord,1,Y);
+elseif strncmpi(plottype,'CWI',3)
+    if ~isempty(var5)
+        Y = var5(ord);
+    else
+        Y = [1:numel(ord)];
+    end
+    wiggleplot_colored(c,scale,ord,1,Y);
+elseif strncmpi(plottype,'BWI',3)
+    if ~isempty(var5)
+        Y = var5(ord);
+    else
+        Y = [1:numel(ord)];
+    end
+    %if all(max(get(c,'waveform')) <= 0)
+    if ~any(max(get(c,'waveform')) > 0)
+        reverseBlackWhite = true;
+    else
+        reverseBlackWhite = false;
+    end
+    wiggleplot_blackWhiteColored(c,scale,ord,1,Y,reverseBlackWhite);
 elseif strncmpi(plottype,'RAW',3)
     wiggleplot(c,scale,ord,0);
+    
+elseif strncmpi(plottype,'RABWIG',5)    
+    if ~isempty(var5)
+        Y = var5(ord);
+    else
+        Y = [1:numel(ord)];
+    end
+    %if all(max(get(c,'waveform')) <= 0)
+    if ~any(max(get(c,'waveform')) > 0)
+        reverseBlackWhite = true;
+    else
+        reverseBlackWhite = false;
+    end
+    wiggleplot_blackWhiteColored(c,scale,ord,1,Y,reverseBlackWhite);
+    
 elseif strncmpi(plottype,'OVE',3)
     overlayplot(c,scale,ord);
 elseif strncmpi(plottype,'SAM',3)

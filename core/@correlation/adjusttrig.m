@@ -16,6 +16,14 @@ function c = adjusttrig(c,varargin)
 %   C = ADJUSTTRIG(C,'MIN') Trigger times are adjusted relative to the trace with
 %   the minimum mean lag time. This is the default setting.
 %
+%   C = ADJUSTTRIG(C,'MMM',TIMESHIFT) Trigger times are adjusted relative to 
+%   the trace with the minimum mean lag time. Additionally substracts the 
+%   median to avoid shifting all traces by a bias - which happens
+%   when the distribution of tshift is skewed (e.g. many small positive
+%   shifts and few large negative shifts, with mean zero)
+%   TIMESHIFT is then a maximum allowed shift (other traces are kept, but
+%   their trigger is not changed).
+%
 %   C = ADJUSTTRIG(C,'MEDIAN') trigger times are adjusted by their median lag
 %   time with all other traces. This can be advantageous when working within
 %   a single cluster of similar waveforms.
@@ -85,6 +93,11 @@ else
     else
         dosubset = 0;
     end;
+    if strncmp(calctype,'MMM',3) && (length(varargin)==2)
+        dosubset = varargin{2};
+    else
+        dosubset = inf;
+    end;
 c = adjusttriggers(c,calctype,dosubset);
 end
 
@@ -110,6 +123,20 @@ elseif calctype(1:3)=='MIN'
     [tmp,centerevent] = min(abs(mean(c.L)));
     tshift = double(c.L(centerevent,:)');	% in seconds
     c.trig = c.trig - tshift/86400;
+    c.L = [];
+    
+elseif calctype(1:3)=='MMM'
+    [tmp,centerevent] = min(abs(mean(c.L)));
+    tshift = double(c.L(centerevent,:)');	% in seconds
+    % substract the median to avoid shifting all traces by a bias - happens
+    % when the distribution of tshift is skewed (e.g. many small positive
+    % shifts and few large negative shift, with mean zero)
+    tshift = tshift - median(tshift);
+    tooLargeShiftI = find(abs(tshift) > index);
+    tshift(tooLargeShiftI) = 0;
+    % tshift = tshift - mean(tshift);
+    c.trig = c.trig - tshift/86400;
+    index = 0;
     c.L = [];
 
 elseif calctype(1:3)=='MED'

@@ -1,4 +1,4 @@
-function response_structure_description
+openfunction response_structure_description
 
 %RESPONSE_STRUCTURE_DESCRIPTION Describe response structure fields
 %   The fields of a response structure are as follows:

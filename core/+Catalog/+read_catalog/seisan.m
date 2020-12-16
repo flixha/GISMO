@@ -82,7 +82,7 @@ function self = seisan(varargin)
         return;
     end
     
-    % get dir list of matching sfilesSfile.list_sfiles
+    % get dir list of matching sfiles
     sfiles = Sfile.list_sfiles(dbpath, snum, enum);
     
     % loop over sfiles
@@ -149,7 +149,9 @@ function self = seisan(varargin)
     end 
     
     % create Catalog object
-    self = Catalog(dnum', lon', lat', depth', mag', magtype', etype', 'request', request, 'arrivals', arrivals', 'wavfiles' , wavfiles','focmec', focmec');
+    self = Catalog(dnum', lon', lat', depth', mag', magtype', etype', ...
+        'request', request, 'arrivals', arrivals',...
+        'wavfiles' , wavfiles','focmec', focmec');
     request.startTime = snum;
     request.endTime = enum;
     self.request = request;
