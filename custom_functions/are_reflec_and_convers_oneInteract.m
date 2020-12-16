@@ -1,5 +1,13 @@
 function theyAre = are_reflec_and_convers_oneInteract(thisPhase)
 
+% are_reflec_and_convers_oneInteract: check whether the name of a seismic
+%   phase indicates whether the label describes a wave interaction that is
+%   at the same time a conversion and a reflection. 
+% Input:
+%   thisPhase : label of seismic phase, e.g., "PmP"
+% Output:
+%   boolean
+
     theyAre = true;
 
     IFinteract{1} = strfind(thisPhase,'_m');

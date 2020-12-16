@@ -1,8 +1,18 @@
 function c2 = processStationGathers(c, cstation, comp, minFrequency,...
     maxFrequency)
+% processStationGathers: process the seismograms of a set of events to
+%   create a station gather of all seismograms recorded at each station for
+%   further analysis.
+% Input:
+%   c       : network-correlation object
+%   cstation : cell array with the names of the chosen stations
+%   corcomp  : cell array with the names of the chosen channels
+%   minFrequency: lower passband filtering-frequency
+%   maxFrequency: upper passband filtering-frequency
+% Output:
+%   c2      : processed network-correlation object
 
     c2 = c;
-
     for nc=1:1:length(comp)
         corr_matrices.(comp{nc}) = struct();
     end
@@ -55,12 +65,9 @@ function c2 = processStationGathers(c, cstation, comp, minFrequency,...
                         hilLags_Z = get(hil,'lag');
 
                         % calculate lags from all components ; but weight
-                        % Z-component strongest
-                        
+                        % Z-component strongest                        
                         hilLags = hilLags_Z;
-                        
-%                         hilLags = (hilLags_Z*2+hilLags_N+hilLags_E)/4;
-                        %hil = adjusttrig(hil,'MMM', 0.2);
+
                     end
                     % 2. Correct all components with the same adjustments from
                     % hilbert transform

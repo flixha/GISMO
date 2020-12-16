@@ -1,22 +1,26 @@
 function c2 = threeComponentProcessing(c2, cstation, n, J, K, dt, width,...
     adjustAlignment, gainControl)
 
-% this function creates three-component objects for each of the records in
-% the network-correlation object, applies rotation and a polarization 
-% filter to enhance body wave arrivals.
-% c2 is a structure with the substructure: Channel, cstation,
-% correlation/catalog object. 
-% cstation are the stations to be processed. n, J, K, dt, width are the
-% parameters for polarizationfilter.
+% threeComponentProcessing: create three-component objects for each of the
+%   records in the network-correlation object, applies rotation and a
+%   polarization filter to enhance body wave arrivals.
+% Input:
+%   cstation : cell array with the names of the chosen stations
+%   n, J, K, dt, width: are the polarization-filter parameters described by
+%       Montabetti & Kanasewich, 1970. Enhancement of teleseismic body wav
+%       phases with a polarisation analysis, Geophys. J. R. Astron. Soc.
+%   adjustAlignment: boolean, whether to adjust seismogram alignment again
+%   gainControl: boolean, whether to apply automatic gain control
+% Output:
+%   c2 : network correlation object with substructure: Channel, cstation,
+%       correlation/catalog object. 
 
-% now parallelizing over events, but function is still not the quickest for
-% larger datasets
+% Can be easily parallelized across events, by setting event loop to
+% "parfor", but function is still not the quickest for larger datasets.
+% c2 is a structure with the 
 
-
-
-secPerDay = 60*60*24;
-dayPerSec = 1/secPerDay;
-
+SECPERDAY = 60*60*24;
+DAYPERSEC = 1/SECPERDAY;
 
 c2.Zp = c2.Z;
 c2.R = c2.Z;
@@ -77,16 +81,8 @@ for k=1:1:length(cstation)
 
     % BackAzimuth from great circle arc between station and
     % hypoDD-location
-%     evcat = subset(c2.Z.(cstation{k}).cat,j);
     evcat = c2.Z.(cstation{k}).cat;
     backazimuth = backazmiuthStationToEvent(cstation{k}, evcat);
-    
-    % BackAzimuth from Seisan Calculations
-    % Zazimuth = c2.Z.(cstation{k}).cat.arrivals{j}.p_caz;
-    % baz = Zazimuth-180;
-    % backazimuth2(j,1) = baz;
-    
-    % incident = c2.Z.S010.cat.arrivals{1}.p_aofinc;
         
     R = Z;
     T = Z;
@@ -97,7 +93,7 @@ for k=1:1:length(cstation)
     % create dummy array of three-comp objects
     zrttc = threecomp([Z(1),N(1),E(1)],0,0,[0 0 0 90 90 90]);
     zrttc = repmat(zrttc,numel(Z),1);
-    %for each event
+    % for each event
     for j=1:1:nw
         % Check if any channel is NaN or all zero, then don't rotate
         if any(isnan(get(Z(j),'data'))) || any(isnan(get(N(j),'data'))) ||...
@@ -130,8 +126,8 @@ for k=1:1:length(cstation)
             st = get(W,'start');
             if st(1) ~= st(2) || st(1) ~= st(3)
                 % Check that the difference is less than 10 % of one sample
-                if st(1) - st(2) <= 0.1*1/get(W(1)*dayPerSec,'freq') &&...
-                        st(1) - st(3) <= 0.1*1/get(W(1)*dayPerSec,'freq')
+                if st(1) - st(2) <= 0.1*1/get(W(1)*DAYPERSEC,'freq') &&...
+                        st(1) - st(3) <= 0.1*1/get(W(1)*DAYPERSEC,'freq')
                     starttim = get(W(1),'start');
                     W(2) = set(W(2), 'start', starttim);
                     W(3) = set(W(3), 'start', starttim);
@@ -147,20 +143,11 @@ for k=1:1:length(cstation)
             tc = threecomp(W, trigger, baz, orientation);
             % set rotated records
             zrt = rotate(tc);
-%             zrttc(j) = zrt;
-            
-%             zrt = particlemotion(zrt, 0.02, 0.8);
-            % chose n = 0.5 or n = 1; dunno how much a difference it makes
-            % zrt = polarizationfilter(zrt, 0.5, 1, 2, 0.02, 0.8);
-            % J= 1, K=2
+
             % dt here as the sampling frequency. and width as twice the 
             % longest period
             % (or maybe better once to twice the DOMINANT period? -->)
             % looks like 1.5 times the longest period is a good compromise!
-%             zrt = polarizationfilter(zrt, 1, 1, 2, 0.01, 0.6); % THIS
-%             APPEARS LIKE SOME GOOD VALUES
-%             zrt = polarizationfilter(zrt, 0.5, 1, 2, 0.01, 0.8);
-            
             ww = get(zrt,'waveform');
             R(j) = ww(2);
             T(j) = ww(3);
@@ -182,13 +169,6 @@ for k=1:1:length(cstation)
         end
     end
     
-%     c2.TC.(cstation{k}) = zrttc;
-    
-    % compare back azimuths from Seisan vs. great-circle arc calculated ones
-    % diff = backazimuth-backazimuth2;
-    % histogram(diff,[-90:1:90]);
-    
-    
     c2.R.(cstation{k}).corr = set(c2.R.(cstation{k}).corr,'waveforms',R);
     c2.T.(cstation{k}).corr = set(c2.T.(cstation{k}).corr,'waveforms',T);
     
@@ -198,11 +178,6 @@ for k=1:1:length(cstation)
     
        
     % Fill NaN-value gaps % don't think this is necessary.. let's see
-%     waves = get(c2.Zp.(cstation{k}).corr,'waveform');
-%     waves = fillgaps(waves,0);
-%     c2.Zp.(cstation{k}).corr =...
-%         set(c2.Zp.(cstation{k}).corr,'waveform',waves);
-
     if adjustAlignment
         % Adjust triggers according to the polarizationfiltered-vertical
         % Component.
@@ -233,14 +208,9 @@ for k=1:1:length(cstation)
         end
     end
     
-
-    
     disp(['Three-component processing: ', num2str(...
         k/length(cstation)*100), ' % completed']);
 end
-
-
-
 
 % Sample code to plot waveforms and rectilinearity/weighting functions
 % www = [get(zrt,'waveform'), get(zrt,'rectilinearity')];

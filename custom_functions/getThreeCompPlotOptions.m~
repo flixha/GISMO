@@ -15,10 +15,10 @@ function [plotArrivals, labelArrivals, plotComp, fileNameAddition0,...
 %   plotEnvelope: boolean, whether to plot the envelopes of the seismograms
 %   scale       : scaling factor for all seismograms
 % Output:
-%   plotArrivals        : bool
-%   labelArrivals       : bool
-%   plotComp            : a set of {'Z','R','T'} or {'Zp','Rp','Tp'}
-%   fileNameAddition0   : str
+%   plotArrivals        : boo
+%   labelArrivals       :
+%   plotComp            :
+%   fileNameAddition0   :
 %   plotEnv             : bool
 %   plotType            : one of
 %   linewidth           : float

@@ -1,7 +1,13 @@
 function c2 = requestMinimumSNR(c, minimumSNR)
 
-% takes a network-object and removes all 3-c traces where no component has
-% a signal-to-noise ratio below minimumSNR. 
+% requestMinimumSNR returns only traces that fulfill a minimum signal-to-
+%   noise threshold. Takes a network-object and removes all 3-c traces
+%   where no component has a signal-to-noise ratio below minimumSNR. 
+% Input:
+%   c   : a network correlation object 
+%   minimumSNR: float value indicating minimum SNR threshold
+% Output:
+%   c2  : a network correlation object without low-SNR traces
 
 comp = fieldnames(c);
 cstation = fieldnames(c.Z)';

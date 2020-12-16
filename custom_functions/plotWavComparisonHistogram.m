@@ -1,8 +1,8 @@
-function [ax, SonRp_vs_PonZp_ord_smo, SonRp_vs_SonTp_ord_smo, SonTp_vs_PonZp_ord_smo]...
-    = plotWavComparisonHistogram(c, sta, varargin)
+function [ax, SonRp_vs_PonZp_ord_smo, SonRp_vs_SonTp_ord_smo,...
+    SonTp_vs_PonZp_ord_smo] = plotWavComparisonHistogram(c, sta, varargin)
 
-    %% function measures some amplitude ratios and plots in a histogram to 
-    % put alongside the waveform plots
+% plotWavComparisonHistogram measures amplitude ratios and plots these in a
+%   histogram to put alongside the waveform plots.
 
     % measure amplitude ratios / energy ratios:
     % P vs S
@@ -181,8 +181,6 @@ function [ax, SonRp_vs_PonZp_ord_smo, SonRp_vs_SonTp_ord_smo, SonTp_vs_PonZp_ord
     S_TpC = taper(crop(c.Tp.(sta).corr, [-winLen*prePhas, winLen*(1-prePhas)]));
     S_TpC = hilbert(demean(detrend(S_TpC)));
     
-%     ratio_SonTp_vs_SonRp = max(get(S_TpC,'waveform')) ./...
-%         max(get(S_RpC,'waveform'));
     
     ratio_SonRp_vs_SonTp = median(get(S_RpC,'waveform')) ./...
         median(get(S_TpC,'waveform'));
@@ -211,89 +209,9 @@ function [ax, SonRp_vs_PonZp_ord_smo, SonRp_vs_SonTp_ord_smo, SonTp_vs_PonZp_ord
     Sdir_energy = max(integrate(get(S_RpC,'waveform')));
     Spost_energy = max(integrate(get(Spost_RpC, 'waveform')));
     Spre_energy = max(integrate(get(Spre_RpC, 'waveform')));
-           
-    %ratio_total_S_vs_directS =  Stot_energy ./ Sdir_energy;
     
     ratio_refl_S_vs_conv_S =  (Spost_energy ./ Sdir_energy) ./...
         (Spre_energy ./ Sdir_energy);
-    
-%     ratio_SonTp_vs_SonRp =...
-%        (max(get(S_TpC,'waveform')) ./ max(get(TpC,'waveform'))) ./...
-%       (max(get(S_RpC,'waveform')) ./ max(get(RpC,'waveform')));
-    
-    
-    
-%     RC = crop(c.R.(sta).corr, [-0.2 1.2*max(SmP)]);
-%     RC = hilbert(demean(detrend(RC)));
-%     TC = crop(c.T.(sta).corr, [-0.2 1.2*max(SmP)]);
-%     TC = hilbert(demean(detrend(TC)));
-%     
-%     S_trigger = get(c.Z.(sta).corr,'trig') + SmP./SECPERDAY;
-%     c.Z.(sta).corr = set(c.Z.(sta).corr,'trig', S_trigger);
-%     c.R.(sta).corr = set(c.R.(sta).corr,'trig', S_trigger);
-%     c.T.(sta).corr = set(c.T.(sta).corr,'trig', S_trigger);
-%         
-%     S_RC = crop(c.R.(sta).corr, [-winLen*0.2, winLen*0.8]);
-%     S_RC = hilbert(demean(detrend(S_RC)));
-%     S_TC = crop(c.T.(sta).corr, [-winLen*0.2, winLen*0.8]);
-%     S_TC = hilbert(demean(detrend(S_TC)));
-%     
-%     ratio_SonR_vs_SonT = mean(get(S_RC,'waveform')) ./...
-%         mean(get(S_TC,'waveform'));
-%     ratio_SonR_vs_SonT =...
-%         (mean(get(S_RC,'waveform')) ./ max(get(RC,'waveform'))) ./...
-%         (mean(get(S_TC,'waveform')) ./ max(get(TC,'waveform')));
-    
-    
-        
-%         cActZp = subset(c.Zp.(sta).corr, arrivalLine);
-%         cActRp = subset(c.Rp.(sta).corr, arrivalLine);
-%         cActTp = subset(c.Tp.(sta).corr, arrivalLine);
-%         
-%         % Energy Across the whole waveform
-%         RpC = hilbert(crop(cActRp, [-0.2 1.5*SmP]));
-%         Rpwav(j,1) = get(RpC,'waveform');
-%         %MeanEnergy_Rp(j) = mean(power(Rpwav(j) ,2));
-%         MeanEnergy_Rp(j) = max(Rpwav(j));
-%         
-%         TpC = hilbert(crop(cActTp, [-0.2 1.5*SmP]));
-%         Tpwav(j) = get(TpC,'waveform');
-%         %MeanEnergy_Tp(j) = mean(power(Tpwav(j) ,2));
-%         MeanEnergy_Tp(j) = mean(Tpwav(j));
-%         
-%         S_RpC = hilbert(crop(cActRp, [SmP - winLen/10*2, SmP + winLen/10*8]));
-%         S_Rpwav(j,1) = get(S_RpC,'waveform');
-%         %MeanSenergy_Rp(j) = mean(power(S_Rpwav(j) ,2));
-%         MeanSenergy_Rp(j) = max(S_Rpwav(j));
-%         
-%         S_TpC = hilbert(crop(cActTp, [SmP - winLen/10*2, SmP + winLen/10*8]));
-%         S_Tpwav(j) = get(S_TpC,'waveform');
-%         %MeanSenergy_Tp(j) = mean(power(S_Tpwav(j) ,2));
-%         MeanSenergy_Tp(j) = mean(S_Tpwav(j));
-%         
-% %         MeanS_AmpRatio(j) = nanmean(...
-% %             (get(S_Rpwav(j),'data') ./ mean(Rpwav(j))) ./ ...
-% %             (get(S_Tpwav(j),'data') ./ mean(Tpwav(j))) );
-%         
-%         %ZpWav = get(cAct, 'waveform');
-%         %RpWav = get(cAct, 'waveform');
-%         %TpWav = get(cAct, 'waveform');
-%         %wRp = RpWav(arrIdx);
-%         
-%         
-%                
-%         % find some arrivals
-%         %for k=1:1:narrivals
-%         %    thisPhase = char(arrivals(evID).arrivals.(sta).phase(k));
-%             %strcmp(thisPhase(end),'S')    
-%         %arrivals(evID).arrivals.(sta).nConv(k) 
-%         %arrivals(evID).arrivals.(sta).nReflections(k)
-
-%     end
-    %ratio_SonRp_vs_SonTp = MeanSenergy_Rp./MeanSenergy_Tp;
-    
-    %ratio_SonRp_vs_SonTp = (MeanSenergy_Rp ./ MeanEnergy_Rp) ./...
-    %    (MeanSenergy_Tp ./ MeanEnergy_Tp);
     
     % smooth Out the Transverse vs. Radial-ratio of S
     SonRp_vs_SonTp_ordered = ratio_SonRp_vs_SonTp(traceOrder);
@@ -303,9 +221,6 @@ function [ax, SonRp_vs_PonZp_ord_smo, SonRp_vs_SonTp_ord_smo, SonTp_vs_PonZp_ord
     SonRp_vs_SonTp_ord_smo = SonRp_vs_SonTp_ordered;
     SonRp_vs_PonZp_ord_smo = SonRp_vs_PonZp_ordered;
     SonTp_vs_PonZp_ord_smo = SonTp_vs_PonZp_ordered;
-    
-    %ratio_total_S_vs_directS_ord = ratio_total_S_vs_directS(traceOrder);
-    %ratio_total_S_vs_directS_ord_smo = ratio_total_S_vs_directS_ord;
     
     ratio_refl_S_vs_conv_S_ord = ratio_refl_S_vs_conv_S(traceOrder);
     ratio_refl_S_vs_conv_S_ord_smo = ratio_refl_S_vs_conv_S_ord;
@@ -319,9 +234,6 @@ function [ax, SonRp_vs_PonZp_ord_smo, SonRp_vs_SonTp_ord_smo, SonTp_vs_PonZp_ord
             SonRp_vs_PonZp_ordered(lower:upper));
         SonTp_vs_PonZp_ord_smo(j) = nanmedian(...
             SonTp_vs_PonZp_ordered(lower:upper));
-        
-        %ratio_total_S_vs_directS_ord_smo(j) = nanmedian(...
-        %    SonRp_vs_PonZp_ordered(lower:upper));
         
         ratio_refl_S_vs_conv_S_ord_smo(j) = nanmedian(...
             ratio_refl_S_vs_conv_S_ord(lower:upper));
@@ -340,9 +252,7 @@ function [ax, SonRp_vs_PonZp_ord_smo, SonRp_vs_SonTp_ord_smo, SonTp_vs_PonZp_ord
         'Color','w');
     hold(ax(1),'on')
     plot(ax(1),SonRp_vs_PonZp_ord_smo, 1:1:nLines,'-','color',blue)
-    %plot(ax(1),SonRp_vs_PonZp_ordered, 1:1:nLines,'.','color',blue)
     ylim(ax(1),[0 nLines])
-    %%%%%xlim(ax(1),[0 0.7 * max([SonRp_vs_PonZp_ord_smo])])
     
     
     if contains(scaling,'log')    
@@ -354,7 +264,7 @@ function [ax, SonRp_vs_PonZp_ord_smo, SonRp_vs_SonTp_ord_smo, SonTp_vs_PonZp_ord
         xlim(ax(1),[10^-upXLim 10^upXLim]);
         ax(1).XScale = 'log';
     else
-        upX2Lim = prctile(SonRp_vs_PonZp_ord_smo(nwin:end-nwin),99);
+        upX2Lim = prctile(SonRp_vs_PonZp_ord_smo(nwin:end-nwin), 99);
         xlim(ax(1),[0 upX2Lim])
     end
     ax(1).XGrid = 'on';
@@ -368,11 +278,8 @@ function [ax, SonRp_vs_PonZp_ord_smo, SonRp_vs_SonTp_ord_smo, SonTp_vs_PonZp_ord
     ax(2) = axes('Position', ax(1).Position, 'XAxisLocation','top',...
         'YAxisLocation','right', 'Color','none');
     hold(ax(2),'on')
-    %plot(ratio_SonRp_vs_SonTp(traceOrder), 1:1:nLines)
     plot(ax(2),SonRp_vs_SonTp_ord_smo, 1:1:nLines,'-','color',red)
-    %plot(ax(2),SonTp_vs_SonRp_ordered, 1:1:nLines,'.','color',red)
     ylim(ax(2),[0 nLines])
-    %%%%%xlim(ax(2),[0 0.7 * max([SonTp_vs_SonRp_ord_smo])])
     
     if contains(scaling,'log')     
         upXLim = prctile(abs(log10(SonRp_vs_SonTp_ord_smo(nwin:...
@@ -393,21 +300,5 @@ function [ax, SonRp_vs_PonZp_ord_smo, SonRp_vs_SonTp_ord_smo, SonTp_vs_PonZp_ord
     ax(2).YTick = [];
     ax(2).XLabel.String = 'SV / SH - Amp.';
     
-    %some other test ratios:
-    %plot(ax(2),ratio_total_S_vs_directS_ord_smo,  1:1:nLines, '-m')
-    %plot(ax(2),ratio_refl_S_vs_conv_S_ord_smo,  1:1:nLines, '-m')
-    
-    %plot(MeanS_AmpRatio(traceOrder), 1:1:nLines)
-
-    
-    
-    %set(gca,'YDir','reverse')
-    
-    %ax = gca;
-    %plot(ratio_SonRp_vs_SonTp(traceOrder), sortedValues)
-    
-            
      
-
-% Measure some amplitude / energy ratios
 

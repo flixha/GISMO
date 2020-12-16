@@ -4,8 +4,6 @@ function shortPhase = shorten_phase_descriptor(cat, thisPhase, arrivalTime)
 
     shortened = false;
     
-  
-    
     %shorten phase name if it's the direct P
     if arrivalTime == 0
         shortPhase = 'P';
@@ -92,13 +90,11 @@ function shortPhase = shorten_phase_descriptor(cat, thisPhase, arrivalTime)
             end
         end
     end
-    
-    
+     
     
     %return long name if it couldn't shorten
     if ~shortened
         shortPhase = thisPhase;
     end   
-    %if contains only P or only S
-    %    then check if it's a reflection: 
+
         

@@ -1,10 +1,13 @@
-clear all
-close all
 
-gismopath = pwd;
-startup_GISMO(gismopath)
-addpath([gismopath, '/custom_functions'])
-addpath([gismopath, '/data'])
+%% This is the basic script to analyze seismograms for secondary arrivals.
+%  The script creates a number of plots on which potential (chosen)
+%  secondary arrivals are marked with a line and a label. Here the input
+%  comes from previously saved mat-files that contain earthquake
+%  hypocenters, picks, and waveforms readily in one GISMO-catalog object.
+%  Alternatively, the input can be read from a wide range of databases with
+%  the available GISMO functions. Note that some additional parameters
+%  (x,y,z-coordinates in a local coordinate system) are added to the GISMO
+%  catalog here.
 
 %set parameters
 reloadFM3Darrivals = false;
@@ -18,18 +21,17 @@ corcomp = {'Z','E','N'};
 
 minFrequency = 1.5;
 maxFrequency = 10;
-tic
-secPerDay = 60*60*24;
-dayPerSec = 1/secPerDay;
-detTimeWindow=seconds(4);
-startTime = '2006/01/01 00:00:00'; 
-endTime = '2007/12/31 00:00:00';
 
 catalogFile = 'data/greekevents_468_2020_12_16.mat';
 arrivalsFile = 'data/arrivals_0.02degGrid.mat';
 
 
-%% Load in data files
+%% Load in functions and data files
+gismopath = pwd;
+startup_GISMO(gismopath)
+addpath([gismopath, '/custom_functions'])
+addpath([gismopath, '/data'])
+
 % load events and waveforms from file
 load(catalogFile, 'greekevents');
 
@@ -39,7 +41,9 @@ load(arrivalsFile, 'arrivals');
 % Or load from original FM3D output files with function
 % arrivals = loadFM3Darrivals(fm3Dpath, [1:1:greekevents.numberOfEvents]);
 
-%% find earthquakes in subclusters
+%% Select a set of earthquakes from the full catalog.
+%  Here: select the active clusters of earthquakes in the mantle wedge, on
+%  the interface, and in the subducting slab.
 
 % Southern Tripoli cluster:
 % Make area as wide as possible, but still rather vertical incoming rays.
@@ -79,33 +83,25 @@ eventI = [I_MWCluster; I_IFCluster; I_ISCluster; I_ArrayCluster]';
 eventI = sort(eventI);
 nSelectedEvents = length(eventI);
 
-eventI = [90:100];
 
 %% Collect all waveforms for the relevant events into a correlation object
 % c is an object that contains GISMO correlation objects for the whole
 % network, accessible as: c.(component).(stationname)
-tic
 c = buildCorrelationCatalog(greekevents, eventI, cstation, corcomp,...
     targetSamplingRateForProcessing);
-toc
 
 % Process the waveforms per station and channel to boost secondary arrival
 % visibility
-tic
-comp = {'Z','N','E'};
+c2 = processStationGathers(c, cstation, corcomp,...
+    minFrequency, maxFrequency);
 
-c2 = processStationGathers(c, cstation, comp, minFrequency, maxFrequency);
-toc
+%% Create threecomponent-objects, rotate and apply polarizationfilter
 
-%% Create threecomponent-objects, rotate and apply polarizationfilter and 
 % First, throw out waveforms with bad Signal-to-noise-ratio
-
 minimumSNR = 2.5;
-comp = {'Z','N','E'};
 c3 = requestMinimumSNR(c2, 2.5);
 
-tic
-% polarizationfilter works well with these values:
+% Do polarization-filtering. Works well with these values:
 % n, J, K, dt, width: (zrt, 1, 1, 2, 0.02, 0.6)
 % the width is crucial! chose e.g. 0.5 s width for 1.5 - 10 Hz filter
 windowLength = 10/maxFrequency * 0.5;
@@ -115,7 +111,6 @@ width = 0.5;
 c4 = threeComponentProcessing(c3, cstation, 0.5, 1, 2, dt, width,...
     true, false);
 c4 = removeEmptyTraces(c4);
-toc
 
 c5 = componentAgc(c4, {'Zp','Rp','Tp'}, 2);
 
@@ -127,15 +122,13 @@ plotComp = {'Zp'};
 printFigure = true;
 plotEnvelope = true;
 baseScale = 1.2;
+xlims = [-2 16];
 fileNameAddition0 = 'Whist_';
-clear cOut;
 
 if plotEnvelope
     fileNameAddition0 = [fileNameAddition0, 'Envelope_'];
     %resample to reduce filesize
-    if ~exist('cOut','var')
-        cOut = resampleNetworkCorrObject(c5, targetSamplingRateAfterFilter);
-    end
+    cOut = resampleNetworkCorrObject(c5, targetSamplingRateAfterFilter);
 end
 
 % Plot the three-component figures for different stages of the processing: 
@@ -197,9 +190,9 @@ for p=[1, 5]
         end
 
         newax = formatThreeComponentWaveformFigures(ax,...
-                cstation{j}, plotComp, plotType,...
-                plotArrivals, plotEnvelope, labelArrivals,...
-                fileNameAddition0, printFigure);
+            cstation{j}, plotComp, plotType,...
+            plotArrivals, plotEnvelope, labelArrivals,...
+            fileNameAddition0, printFigure, xlims);
 
         if length(cstation) > 1
             close all;
@@ -207,41 +200,6 @@ for p=[1, 5]
     end
 end
 
-% xlim([-2 16]);
 set(gcf,'PaperPositionMode','Auto','PaperSize', [pos(3), pos(4)])
 set(gcf,'renderer','painters')
-
-%% print Figures to file 
-printFigure = false;
-if printFigure
-    box on
-    hAll = findall(gcf);
-    for idx = 1 : length(hAll)
-      try
-        set(hAll(idx),'LineWidth',0.02);
-      catch
-        % never mind...
-      end
-      try
-        set(hAll(idx),'fontsize',4);
-      catch
-        % never mind...
-      end
-      try
-        set(hAll(idx),'Color','k');
-      catch
-        % never mind...
-      end
-    end
-    set(gcf, 'Color', 'w');
-    set(gca, 'Color','w')
-    set(gcf,'Units','centimeters');
-    set(gcf,'PaperUnits','centimeters');
-    pos = get(gcf,'Position');
-    pos = get(gcf,'Position');
-    set(gcf,'PaperPositionMode','Auto','PaperSize',[pos(3),pos(4)])
-	print(gcf, 'PE07', '-dpdf', '-painters', '-r300')
-end
-
-
 

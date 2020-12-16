@@ -1,20 +1,18 @@
 
 function [correlationCatalog] = buildCorrelationCatalog(seisCatalog,...
     eventI, cstation, corcomp, targetSamplingRate)
-    %function to build a complete correlatable catalog for many stations, many
-    %channels, and many events. those can then be individually accessed within
-    %that structure through a "." (dot)-notation.
-    %seisCatalog is a catalog object of earthquakes with waveforms 
-    % cstation is a cell array with the names of the desired
-    % stations
-    % corcomp is a cell array with the names of the desired
-    % channels
-    % eventI are the indices of the events to be processed
-   
-    %don't know what I wanted this paramter for
-    deleteArrivals = false;
 
-	secPerDay = 60*60*24;
+% buildCorrelationCatalog builds a complete correlatable catalog for a set
+%   ofstations, channels, and events. Those can then be individually
+%   accessed within that structure through a "." (dot)-notation.
+% Input:
+%   cstation : cell array with the names of the chosen stations
+%   corcomp  : cell array with the names of the chosen channels
+%   eventI   : array of indices of the events to be processed
+% Output:
+%   correlationCatalog : GISMO catalog object of earthquakes with waveforms
+
+	SECPERDAY = 60*60*24;
     
     %for each channel
     for ncc=1:1:numel(corcomp)
@@ -34,6 +32,7 @@ function [correlationCatalog] = buildCorrelationCatalog(seisCatalog,...
         end
         wstation = get(w,'station');
         wchannel = get(w,'channel');
+        
         % I don't understand why this happens, but sometimes the above two
         % get statements return a X*X cell of station names for a
         % waveform object with only X waveforms
@@ -69,13 +68,6 @@ function [correlationCatalog] = buildCorrelationCatalog(seisCatalog,...
             %in case i may need the s-pick at some time
             if ~isempty(trigStaI) && ~isempty(striggers{trigStaI})
                 setSTrig = striggers{trigStaI};
-                % if there is an S-pick but no P-pick, then set
-                % the P-pick to an assumed value:
-%                             if isnan(setPTrig)
-%                                 %calculate P-arrival from S-arrival and S/P
-% %                                 seisCatalog.arrivals{j}(trigStaI).s_dis
-%                                 setPTrig = NaN;
-%                             end
             else
                 setSTrig = NaN;
             end
@@ -86,10 +78,13 @@ function [correlationCatalog] = buildCorrelationCatalog(seisCatalog,...
                 clear prevWav prevTrig;
                 if ~isfield(c.(corcomp{ncc}),cstation{k})
                     c.(corcomp{ncc}).(cstation{k}).corr = correlation();
-                    c.(corcomp{ncc}).(cstation{k}).cat = seisCatalog.subset([]);
+                    c.(corcomp{ncc}).(cstation{k}).cat =...
+                        seisCatalog.subset([]);
                 else
-                    prevWav = get(c.(corcomp{ncc}).(cstation{k}).corr,'waveform');
-                    prevTrig = get(c.(corcomp{ncc}).(cstation{k}).corr,'trig');
+                    prevWav = get(c.(corcomp{ncc}).(cstation{k}).corr,...
+                        'waveform');
+                    prevTrig = get(c.(corcomp{ncc}).(cstation{k}).corr,...
+                        'trig');
                 end
                 
                 if exist('prevTrig','var') && ~isnan(PTrig)
@@ -119,7 +114,6 @@ function [correlationCatalog] = buildCorrelationCatalog(seisCatalog,...
                         end
 
                         testWav = seisCatalog.waveforms{j}(staCompWavI);
-    %                     testWav = testWav(1);
                         testfreq = get(testWav,'freq');
                         testdata = get(testWav,'data');
                         if testfreq > 9.99 
@@ -137,12 +131,11 @@ function [correlationCatalog] = buildCorrelationCatalog(seisCatalog,...
                             % update the frequency
                             testWav = set(testWav,'data',ResampleD,...
                                 'Freq', targetSamplingRate);
-                            % and for good measure... update the waveform's history
-%                               testWav = testWav.addHistory('Resampled data outside of waveform object');
                         else
                             % Set a NAN-waveform
                             testWav = set(testWav,'data',NaN(...
-                                targetSamplingRate/testfreq * length(get(testWav,'data')),1));
+                                targetSamplingRate/testfreq *...
+                                length(get(testWav,'data')),1));
                             testWav = set(testWav,'freq',targetSamplingRate);
                         end
                     elseif ~isempty(staWavI) 
@@ -163,8 +156,8 @@ function [correlationCatalog] = buildCorrelationCatalog(seisCatalog,...
                     end
                     
                     % Cut waveform to the time from the trigger and some
-                    testWav = extract(testWav, 'TIME', PTrig-15/secPerDay,...
-                        PTrig + 30/secPerDay);
+                    testWav = extract(testWav, 'TIME', PTrig-15/SECPERDAY,...
+                        PTrig + 30/SECPERDAY);
 
                     %set the waveform for the correlation event
                     setWav = seisCatalog.waveforms{j}(staCompWavI);
@@ -174,12 +167,12 @@ function [correlationCatalog] = buildCorrelationCatalog(seisCatalog,...
                     else
                         setWav = testWav;
                     end
-                    %set the event details for each waveform within the
-                    %correlation event.  THIS IS SLOOOOOOWWWWW. 
+                    % set the event details for each waveform within the
+                    % correlation event.  THIS IS SLOOOOOOWWWWW. 
                     c.(corcomp{ncc}).(cstation{k}).cat.table = ...
                         [c.(corcomp{ncc}).(cstation{k}).cat.table; ...
                         seisCatalog.subset(j).table(:,1:end)];
-                    %delete arrivals from new per-station-event-catalog
+                    % delete arrivals from new per-station-event-catalog
                     c.(corcomp{ncc}).(cstation{k}).cat.table.arrivals{end,1}(:)=[];
                     % sort the arrivals for that very station for this event to
                     % the event-at-station-catalog
@@ -188,12 +181,13 @@ function [correlationCatalog] = buildCorrelationCatalog(seisCatalog,...
 
                     %set triggers, waveforms, and catalog
                     c.(corcomp{ncc}).(cstation{k}).corr =...
-                        set(c.(corcomp{ncc}).(cstation{k}).corr,'trig',setPTrig);
+                        set(c.(corcomp{ncc}).(cstation{k}).corr,...
+                        'trig', setPTrig);
                     c.(corcomp{ncc}).(cstation{k}).corr =...
-                        set(c.(corcomp{ncc}).(cstation{k}).corr,'waveform',setWav);
+                        set(c.(corcomp{ncc}).(cstation{k}).corr,...
+                        'waveform', setWav);
                 end
             end
-            % make threecomp-objects here
         end
     end
     

@@ -4,30 +4,22 @@ function [traceOrder, sortedValues, titlename, ylabelname, stdValues,...
 % getTraceOrderAndPlotMethodProps sorts traces by a chosen method and
 %   returns the sorted order of the traces.
 % Input:
-%   c       : network-correlation object
+%   c       :
 %   method  : one of 'LAT' or 'LATITUDE',
 %                   'LON' or 'LONGITUDE',
 %                   'X' or 'DISTFROMTRENCH' or 'DISTANCEFROMTRENCH'
 %                   'Y' or 'DISTALONGSTRIKE', 
 %                   'Y' or 'DISTALONGSTRIKE',
-%                   'Z' or 'DEPTH',
-%                   'DISTFROMSLABTOP' or 'DISTANCEFROMSLABTOP' or 
-%                       'SLABTOP','DFST',
-%                   'S-P' or 'SMP' or 'SMINUSP',
-%                   'MAG' or 'M' or 'MAGNITUDE'.
+%                   'Z' or 'DEPTH'
+%                   'DISTFROMSLABTOP' or 'DISTANCEFROMSLABTOP' or 'SLABTOP','DFST'
+%                   'S-P' or 'SMP' or 'SMINUSP'
+%                   'MAG' or 'M','MAGNITUDE'
 %   sta     : cell array with the names of the chosen stations
 %   comp    : cell array with the names of the chosen channels
 %   isStackedCatalog: indicated whether there are stacked events in the
 %             catalog.
 % Output:
-%   traceOrder  : array of the sorted trace indices
-%   sortedValues: array of the sorted values by which the method sorted
-%   titlename   : str of the name by which the traces were sorted
-%   ylabelname  : str of the name by which the traces were sorted
-%   stdValues   : array of standard deviation values if more than one event
-%               are considered for the sorting of a single trace ( is the
-%               case for stacked traces).
-%   invertplot  : whether the order is increasing or decreasing
+%   correlationCatalog : GISMO catalog object of earthquakes with waveforms
 
     stdValues = zeros(height(c.(comp).(sta).cat.table),1);
 switch upper(method)

@@ -1,7 +1,11 @@
 function arrivals = loadFM3Darrivals(fm3Dpath, varargin)
-% clear all
-% fm3Dpath = '/Volumes/nasdata2/Documents2/Greece_MWcluster/FastMarching/Runs/RunSetup/';
-% fm3Dpath = '/Volumes/nasdata2/Documents2/Greece_MWcluster/FastMarching/Runs/EventRuns_0.1deg/';
+
+% loadFM3Darrivals loads a set of arrivals from theoretical calculations in
+%   FM3D (fast marching 3D program by Rawlinson, Sambridge, deKool).
+% Input:
+%   fm3Dpath: path to the FM3D-run
+% Output:
+%   arrivals: GISMO arrivals object
 
 %check if it should read from an folder-per-event structure
 folderPerEvent = false;
@@ -118,21 +122,9 @@ for jev = jEvents
                 g = 3*k - 2;
                 phaseName(g:g+2) = [phaseNow, boundary];
 
-    %             boundary = num2str(sourcePath{j}((k*2)));
-    %             g = 2*k - 1;
-    %             phaseName(g:g+1) = [phaseNow, boundary];
             end
         end
-
-    %     if ~contains(phaseName([1:2:end]),'S')
-    %         phaseName = 'P';
-    %     elseif ~contains(phaseName([1:2:end]),'P')
-    %         phaseName = 'S';
-    %     else
-    %         phaseName = phaseName([1,3:end-1]);
-%             phaseName = phaseName([1,4:end-2]);
-         phaseName = phaseName(1:end-2);
-    %     end
+        phaseName = phaseName(1:end-2);
         phaseNames{j,1} = phaseName;
 
     end
@@ -158,10 +150,7 @@ for jev = jEvents
         receivers.name(j) = stations.name(stIdx(1));
     end
 
-
-
     narrivals = height(arrivalData);
-   
 
     for j=1:1:nrec
         staName = receivers.name(j);
@@ -206,7 +195,6 @@ for jev = jEvents
                         length(arrivals(kev).arrivals.(staName).phase{1});
                     %return 1 if lengthDiff is 3, return 2, 3... if
                     %lengthDiff is 9, 15, 21 etc.
-                    %nRefl = ceil(lengthDiff/6);
                     nRefl = round(lengthDiff/3);
                     if lengthDiff > 0
                         nRefl = 1;

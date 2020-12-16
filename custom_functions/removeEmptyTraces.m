@@ -1,5 +1,13 @@
 function c2 = removeEmptyTraces(c2)
 
+% removeEmptyTraces removes empty traces from a network correlation object.
+%   Such traces may appear during processing if the raw trace contained
+%   e.g. a NaN value.
+% Input:
+%   c2        : network-correlation object
+% Output:
+%   c2        : network-correlation object without empty traces
+
 % remove empty / zero traces
 comp = fieldnames(c2);
 cstation = fieldnames(c2.(comp{1}));

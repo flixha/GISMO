@@ -1,13 +1,13 @@
-function c = componentAgc(c,comp,varargin)
+function c = componentAgc(c, comp, varargin)
 
-% This function applies automatic gain control (AGC) to each trace. This 
-% process, commonly used in seismic reflection processing, applies a
-% variable scale to each trace such that the amplitude along the entire
-% trace is roughly uniform. By minimizing amplitude variations along the
-% trace, well-correlated but low-amplitude phases become more visible. A
-% time window may be specified to control how tightly this scaling is
-% applied. Use a longer window for lower frequecy signals. The function
-% returns a correlation object.
+% componentAgc applies automatic gain control (AGC) to each trace in the
+%   input. This process, commonly used in seismic reflection processing,
+%   applies a variable scale to each trace such that the amplitude along
+%   the entire trace is roughly uniform. By minimizing amplitude variations
+%   along the trace, well-correlated but low-amplitude phases become more
+%   visible. A time window may be specified to control how tightly this
+%   scaling is applied. Use a longer window for lower frequecy signals. The
+%   function returns a correlation object.
 %
 % EXAMPLES:
 %  c=agc(c)    				apply agc using the default time window (0.5 s)

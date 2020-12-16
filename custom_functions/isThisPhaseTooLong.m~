@@ -3,14 +3,7 @@ function itis = isThisPhaseTooLong(thisPhase, maxPhaseLength,...
 % isThisPhaseTooLong determines whether a seismic phase underwent too many
 %   reflections and / or conversions or not.
 % Input:
-%   thisPhase : name of the phase (str)
-%   maxPhaseLength: maximum number of interactions with discontinuities
-%       (int)
-%   distFromSlabTop: distance from a discontinuity (if it's too close, this
-%       one will not be considered).
-% Output:
-%   boolean
-
+%   thisPhase : name of the p
     itis = true;
     
     % set as too long when it's too long

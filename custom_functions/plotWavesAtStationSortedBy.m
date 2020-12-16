@@ -1,9 +1,28 @@
 function [pickOffset] = plotWavesAtStationSortedBy(c, comp, sta, varargin)
+% plotWavesAtStationSortedBy Plot a set of seismograms at one station in a
+%   sorted order.
+% Inputs:
+%   c   : a network correlation object 
+%   comp: the components to plot seismograms for, e.g. 'Z'
+%   sta : the stations to plot seismograms for, e.g. 'ITM'
+% varargin:
+%   method   : method to sort seismograms, one of: 'LAT', 'LATITUDE', 'LON',
+%           'LONGITUDE', 'X', 'DISTFROMTRENCH', 'DISTANCEFROMTRENCH', 'Y',
+%           'DISTALONGSTRIKE', 'Z', 'DEPTH', 'DISTFROMSLABTOP',
+%           'DISTANCEFROMSLABTOP', 'SLABTOP', 'DFST', 'S-P','SMP','SMINUSP'
+%   plotType : plot type, one of 'SHA', 'WIG', 'WIGBYY', 'CWIG', 'BWIG'
+%   linewidth : 
+%   scale : 
+%   arrivals : GISMO arrivals object
+%   markArrivalTimes: bool
+%   labelArrivals: bool
 
-% varargin: method, plottype, linewidth, scale, 
+% Output: pickOffset:
+% = plotWavesAtStationSortedBy(c, comp, sta, varargin)
+
+
 % plottype is 'sha' or 'wig' 
 SECPERDAY = 24*60*60;
-
 
 p = inputParser;
 
@@ -23,9 +42,9 @@ defaultScale = 1;
 
 defaultMarkArrivalTimes = false;
 
-addRequired(p,'c',@isstruct);
-addRequired(p,'comp',@ischar);
-addRequired(p,'sta',@ischar);
+addRequired(p,'c', @isstruct);
+addRequired(p,'comp', @ischar);
+addRequired(p,'sta', @ischar);
 addOptional(p,'method', defaultMethod, checkMethod);
 addOptional(p,'plottype', defaultPlotType, checkPlotType);
 addParameter(p,'linewidth', defaultLineWidth, @isnumeric)
@@ -118,13 +137,7 @@ end
 plusEnv = 0;
 if plotEnvelope
     c.(comp).(sta).corr = hilbert(c.(comp).(sta).corr);
-    %w = get(c.(comp).(sta).corr,'waveform');
-    % w = power(w,3/4);
-    %c.(comp).(sta).corr = set(c.(comp).(sta).corr,'waveform',w);
     plusEnv = -0.5;
-    
-    % Reduce the sampling by factor of two
-    
 end
 
 if strcmpi(seismogramtype,'DISPLACEMENT')
@@ -133,17 +146,6 @@ if strcmpi(seismogramtype,'DISPLACEMENT')
     c.(comp).(sta).corr = detrend(c.(comp).(sta).corr); 
 end
 
-% if muteFirstArrivals
-%     wavs = get(c.(comp).(sta).corr,'waveform');
-%     ptriggers = c.(comp).(sta).corr,'trig');
-% need to find a way to store the striggers in the correlation object...
-%     striggers = 
-%     for j=1:1:numel(wavs)
-%         preP = taper(wavs(j),[-4, ptriggers(j)-0.1]);
-%         postP = taper(wavs(j),[ptriggers(j)+0.2 striggers(j)-0.1]);
-%         postS = taper(wavs(j),[striggers(j)+0.2 20]);
-%     end
-% end
 
 switch upper(method)
     case {'LAT','LATITUDE'}
@@ -271,12 +273,6 @@ else
     avoidPtoS = false;
 end
 
-% plot(c.(comp).(sta).corr,'wig',1,traceOrder);
-% plot(c.(comp).(sta).corr,'sha',1,traceOrder);
-% plot(c.(comp).(sta).corr, plottype, 1, traceOrder);
-% To plot .....
-% plot(c.(comp).(sta).corr,'wig',0.05,traceOrder,c.(comp).(sta).cat.table.x,'linewidth',0.1);
-
 % Switch around waveforms and plot when the chosen sort value should go
 % from large at the top to small at the bottom (that applies only to the 
 % distance from slab top for now)
@@ -331,8 +327,6 @@ switch upper(plottype)
         % sort-parameter
         plot(c.(comp).(sta).corr, 'wig', scale, traceOrder, sortedValues,...
            'linewidth', linewidth);
-%         plot(c.(comp).(sta).corr, 'wig', scale, sortedValues,...
-%             'linewidth', linewidth);
         
         addsome = abs(sortedValues(end) - sortedValues(1))*0.02;      
         ylabel(ylabelname,'fontsize',12)
@@ -344,8 +338,8 @@ switch upper(plottype)
         set(gca,'YMinorTick','on')
 end
 
-%logical array to store whether arrivals were labelled on the last few
-%lines or no
+% logical array to store whether arrivals were labelled on the last few
+% lines or no
 nLines = numel(traceOrder);
 minLinesWithoutLabel = round(nLines/8);
 lastXLines = false(minLinesWithoutLabel,1);
@@ -354,12 +348,9 @@ ax1 = gca;
 hold(ax1, 'on')
 
 if markArrivalTimes
-%     load('arrivals.mat');
-%     load('arrivals_VgridsDepthCorrectlyInverted.mat');
-%     load('arrivals_wNconv.mat');
     % check if arrivals were sent to function, else load from file
     if isempty(fields(arrivals))
-        load('arrivals_0.02degGrid.mat','arrivals');
+        load('arrivals_0.02degGrid.mat', 'arrivals');
     end
     
     prevEventArrivalPhases = cell(0,0);
@@ -382,15 +373,10 @@ if markArrivalTimes
         if arrivals(evID).EventID ~= evID
             warning('event IDs do not match')
             continue
-        end
-            
+        end           
             
         thisEventArrivalPhases = cell(0,0);
         thisEventArrivalTimes = zeros(0,0);
-        %Check that there
-%         if traceOrder(j) > length(arrivals)
-%             continue
-%         end
                 
         % get the right line for plotting
         [arrivalLine, arrIdx] = find(traceOrder==j);
@@ -437,14 +423,6 @@ if markArrivalTimes
             % only allow plotting when it is less than
             % maxConversions
             thisPhase = char(arrivals(evID).arrivals.(sta).phase(k));
-%                     plotPhase = true; nConv = 0;
-%                     pIdx = 1:3:length(thisPhase);
-%                     for p=2:1:length(pIdx)
-%                         if ~strcmp(thisPhase(pIdx(p)),...
-%                                 thisPhase(pIdx(p-1)))
-%                             nConv = nConv + 1;
-%                         end
-%                     end
             plotPhase = true;
 
             % do not plot when phase contains too many conversions
@@ -474,11 +452,6 @@ if markArrivalTimes
                                 
             % if polarizationfiltered: don't plot the arrivals that
             % shouldn't be visible on that channel
-            %         elseif strcmp(comp,'Zp') && strcmp(thisPhase(end),'S')
-            %             plotPhase = false;
-            %         elseif (contains(comp,'R') || contains(comp,'T')) &&...
-            %                 strcmp(thisPhase(end),'P')
-            %             plotPhase = false;
             elseif isThisPhaseTooLong(thisPhase, maxPhaseLength,...
                     c.(comp).(sta).cat.table.DistFromSlabTop(j))
                 plotPhase = false;
@@ -513,8 +486,6 @@ if markArrivalTimes
 
 
             if plotPhase    
-                %plot(ax1, arrivals(evID).arrivals.(sta).time(k) -...
-                %    firstArrival,arrivalLine, '+k');
                 x = arrivals(evID).arrivals.(sta).time(k) - firstArrival;
                 if x < 0
                     warning(['Arrival earlier than first arrival,',...
@@ -540,10 +511,7 @@ if markArrivalTimes
                             pickColor = [pickColor; 0 0 1];
                         %reflected & converted: lila
                         elseif nRefl >= 1 && nConv >= 1
-                            %pickColor = [pickColor; 1 0.4 1];
-                            % strong lila:
-                            %pickColor = [pickColor; 0.6 0.2 0.85]; 
-                            % weak lila:
+                            % weak purple:
                             pickColor = [pickColor; 0.8 0.55 1]; 
                         else
                         % direct: green
@@ -569,7 +537,6 @@ if markArrivalTimes
         % Mark the phases with text only if the
         % previous event did not have the same arrivals
         plotText = true;
-        % thisEventArrivalPhases = arrivals(evID).arrivals.(sta).phase;
         if length(thisEventArrivalPhases) == length(prevEventArrivalPhases)
             phasesEqual = strcmp(prevEventArrivalPhases,...
                 thisEventArrivalPhases);
@@ -584,26 +551,15 @@ if markArrivalTimes
         end
 
         if plotText
-            %Y = repmat(y, length(thisEventArrivalTimes),1);
-            %text(ax1, thisEventArrivalTimes, Y,...
-            %            thisEventArrivalPhases,...
-            %            'color', pickColor,'Rotation', 90,...
-            %            'FontSize', 10);
             [sortedEventArrivalTimes, sortI] = sort(thisEventArrivalTimes);
             sortedEventPhases = thisEventArrivalPhases(sortI,:);
             sortedPickColors = pickColor(sortI,:);
             for k=1:1:length(thisEventArrivalTimes)
-                %if k>1
-                %    pickDist = sortedEventArrivalTimes(k) -...
-                %        sortedEventArrivalTimes(k-1);
-                %else
-                %    pickDist = 99;
-                %end
-                %get a shortened phase string
+                % get a shortened phase string
                 cat = subset(c.(comp).(sta).cat, j);
                 shortPhase = shorten_phase_descriptor(cat,...
                     sortedEventPhases{k}, sortedEventArrivalTimes(k));
-                %if there is long enough between arrivals, then print
+                % if there is long enough between arrivals, then print
                 % with defautl alignment
                 if ~strcmp(shortPhase,'')
                     if mod(k,2) || length(traceOrder) < 15
@@ -618,26 +574,6 @@ if markArrivalTimes
                             'FontSize', 10, 'HorizontalAlignment','right');
                     end
                 end
-
-                %     if pickDist > 1
-                %         text(ax1, sortedEventArrivalTimes(k), y,...
-                %                 sortedEventPhases(k),...
-                %                 'color', pickColor,'Rotation', 90,...
-                %                 'FontSize', 10, 'HorizontalAlignment','right');
-                %     else
-                %         % print offset to the left/bottom
-                % 
-                % if mod(k,2)
-                %     text(ax1, sortedEventArrivalTimes(k), y,...
-                %             sortedEventPhases(k),...
-                %             'color', pickColor,'Rotation', 90,...
-                %             'FontSize', 10, 'HorizontalAlignment','left');
-                % else
-                %     text(ax1, sortedEventArrivalTimes(k), y,...
-                %         sortedEventPhases(k),...
-                %         'color', pickColor,'Rotation', 90,...
-                %         'FontSize', 10, 'HorizontalAlignment','right');
-                % end
             end
         end
         lastXLines(1:end-1,1) = lastXLines(2:end,1);

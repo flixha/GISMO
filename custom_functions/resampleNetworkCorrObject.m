@@ -1,6 +1,13 @@
 function cOut = resampleNetworkCorrObject(c, targetSamplingRate)
-    %resample all waveforms in a network-correlation object to a selected
-    %target sampling rate
+
+% resampleNetworkCorrObject resamples all waveforms in a network-
+%   correlation object to a selected target sampling rate.
+% Input:
+%   c   : a network correlation object 
+%   targetSamplingRate: sampling rate to resample all traces to
+% Output:
+%   c2  : a network correlation object with resampled traces
+
     comp = fieldnames(c)';
     cstation = fieldnames(c.(comp{1}))';
     

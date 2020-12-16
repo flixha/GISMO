@@ -10,10 +10,10 @@ function firstArrival = getFirstArrivalTimeFromFM3D(c, arrivals,...
 %   comp     : cell array with the names of the chosen channels
 %   traceOrder: array of indices of the traces
 %   evID     : ID of the event
-%   arrivalLine: the line in the plot where the arrival will need to be
-%       plotted into to fit the trace.
+%   arrivalLine: the 
 % Output:
-%   firstArrival : arrival object for the first arrival
+%   correlationCatalog : GISMO catalog object of earthquakes with waveforms
+
 
     p = inputParser;
 
@@ -30,7 +30,7 @@ function firstArrival = getFirstArrivalTimeFromFM3D(c, arrivals,...
     checkPhases = @(x) any(validatestring(x,validPhases));
     addOptional(p,'Phase', defaultPhase, checkPhases);
     
-    % parse(p, c, arrivals, sta, comp, traceOrder, evID, arrivalLine, varargin{:});
+%     parse(p, c, arrivals, sta, comp, traceOrder, evID, arrivalLine, varargin{:});
     parse(p, varargin{:});
     res = p.Results;
     Phase = res.Phase;
@@ -89,20 +89,27 @@ function firstArrival = getFirstArrivalTimeFromFM3D(c, arrivals,...
 
         firstArrival = nanmean([firstArrM1, firstArrP1]);
     end
+    
+    
+    
+    %%%
+%     myPhases = cell(0,0);
+%     for k=1:1:length(cstation)
+%         for j=1:1:length(arrivals)
+%             if ~isempty(arrivals(j).arrivals)
+%                 if ~isempty(arrivals(j).arrivals.(sta).phase)
+%                     sta = char(cstation(k));
+%                     myPhases(j,k) = arrivals(j).arrivals.(sta).phase(1);
+%                 end
+%             end
+%         end
+%     end
+%     descLengths = cellfun(@length,myPhases);
+%     [sortedLengths, order] = sort(descLengths);
+%     myPhasesSorted = myPhases(order(:,1),:);
 
 function [firstArrivalPhase, idx] = getFirstArrivalPhase(Phase, arrivals,...
     evID, sta)
-% getFirstArrivalPhase return the first arriving phase of a chosen type
-%   (e.g., 'P' or 'S') for one event and a selected station.
-% Input:
-%   Phase   : phase type, e.g., 'P' or 'S'
-%   arrivals: set of arrivals
-%   evID    : ID of the event
-%   sta     : station name
-% Output:
-% firstArrivalPhase : the first arriving phase
-% idx               : the index of the first arriving phase in the input
-%                       set of arrivals
 
     if strcmp(Phase,'P')
         firstArrivalPhase = char(arrivals(evID).arrivals.(sta).phase(1));
