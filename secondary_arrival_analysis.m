@@ -25,9 +25,9 @@ maxFrequency = 10;
 catalogFile = 'data/greekevents_468_2020_12_16.mat'; % Full Catalog
 % Catalog file with waveforms needs to be split so each file is less than
 % 100 MB
-catalogFile_part1 = 'data/greekevents_468_part1.mat'; % Part 1
-catalogFile_part2 = 'data/greekevents_468_part1.mat'; % Part 2
-catalogFile_part3 = 'data/greekevents_468_part1.mat'; % Part 3
+catalogFile_part1 = 'data/greekevents_468_part_1.mat'; % Part 1
+catalogFile_part2 = 'data/greekevents_468_part_2.mat'; % Part 2
+catalogFile_part3 = 'data/greekevents_468_part_3.mat'; % Part 3
 arrivalsFile = 'data/arrivals_0.02degGrid.mat';
 
 
@@ -40,9 +40,9 @@ addpath([gismopath, '/data'])
 % load events and waveforms from file
 % load(catalogFile, 'greekevents'); % If I have one file for all events
 % Need to split the catalog in 3 to fit on GITHUB within 100 MB limit
-load(catalogFile, 'gr1');
-load(catalogFile, 'gr2');
-load(catalogFile, 'gr3');
+load(catalogFile_part1, 'gr1');
+load(catalogFile_part2, 'gr2');
+load(catalogFile_part3, 'gr3');
 % Combine the files to one catalog again
 greekevents = Catalog();
 greekevents.table = [gr1.table; gr2.table; gr3.table];
