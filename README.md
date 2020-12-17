@@ -5,8 +5,10 @@ F. Halpaap, S. Rondenay, Q. Liu, F. Millet, L. Ottemöller (202x): Toward wavefo
 To reproduce the analysis, run script 
 This code adds a set of function, datasets
 
-The original README for the used version of GISMO is below:
+This code is a fork from the main GISMO repository at https://github.com/geoscience-community-codes/GISMO.https://github.com/geoscience-community-codes/GISMO
 
+
+The original README for the used version of GISMO is below:
 
 # GISMO
 A seismic data analysis toolbox for MATLAB. It can be useful for research, monitoring and education.
