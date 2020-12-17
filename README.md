@@ -5,8 +5,7 @@ F. Halpaap, S. Rondenay, Q. Liu, F. Millet, L. Ottemöller (202x): Toward wavefo
 To reproduce the analysis, run script 
 This code adds a set of function, datasets
 
-This code is a fork from the main GISMO repository at https://github.com/geoscience-community-codes/GISMO.https://github.com/geoscience-community-codes/GISMO
-
+This code is a fork from the main GISMO repository at https://github.com/geoscience-community-codes/.
 
 The original README for the used version of GISMO is below:
 
