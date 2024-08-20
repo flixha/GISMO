@@ -1,9 +1,9 @@
 ## This branch "SecondaryArrivalAnalysis" provides a set of scripts, functions, and data for the analysis of secondary arrivals in a cluster of earthquakes.
 This branch provides the GISMO-based codes to reproduce the seismogram analysis in:
-F. Halpaap, S. Rondenay, Q. Liu, F. Millet, L. Ottemöller (202x): Toward waveform-based characterization of slab \& mantle wedge (SAM) earthquakes
+F. Halpaap, S. Rondenay, Q. Liu, F. Millet, L. Ottemöller (2021): Toward waveform-based characterization of slab \& mantle wedge (SAM) earthquakes
 
-To reproduce the analysis, run script 
-This code adds a set of function, datasets
+To reproduce the analysis, run script secondary_arrival_analysis.m
+This code adds a set of function and datasets related to the paper linked above to the GISMO seismology toolbox.
 
 This code is a fork from the main GISMO repository at https://github.com/geoscience-community-codes/.
 
