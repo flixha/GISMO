@@ -121,7 +121,18 @@ function [correlationCatalog] = buildCorrelationCatalog(seisCatalog,...
                             %resample waveform to target Sampling rate
                             crunchFactor = get(testWav,'freq') / targetSamplingRate;
                             crunchFactor = round(crunchFactor,4);
-                            [Q, P] = numden(sym(crunchFactor));
+                            if crunchFactor == 1
+                                Q = 1;
+                                P = 1;
+                            elseif crunchFactor == 0.5
+                                Q = 1;
+                                P = 2;
+                            elseif crunchFactor == 0.25
+                                Q = 1;
+                                P = 4;
+                            else
+                                [Q, P] = numden(sym(crunchFactor));
+                            end
                             Q = double(Q);
                             P = double(P);
 
