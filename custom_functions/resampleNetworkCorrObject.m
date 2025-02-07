@@ -29,11 +29,24 @@ function cOut = resampleNetworkCorrObject(c, targetSamplingRate)
             %resample waveform to target Sampling rate
             crunchFactor = get(wavs,'freq') ./ targetSamplingRate;
             crunchFactor = round(crunchFactor, 4);
-            if length(sym(crunchFactor)) > 20
-                crunchFactor = round(crunchFactor, 2);
+
+            % workaround so tht we don@t need symbolic toolbox in most cases
+            if crunchFactor == 1
+                Q = 1;
+                P = 1;
+            elseif crunchFactor == 0.5
+                Q = 1;
+                P = 2;
+            elseif crunchFactor == 0.25
+                Q = 1;
+                P = 4;
+            else
+                [Q, P] = numden(sym(crunchFactor));
+                if length(sym(crunchFactor)) > 20
+                    crunchFactor = round(crunchFactor, 2);
+                end
             end
-            
-            [Q, P] = numden(sym(crunchFactor));
+
             Q = double(Q);
             P = double(P);
             if all(Q==Q(1)) && all(P==P(1))
