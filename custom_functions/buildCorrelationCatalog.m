@@ -121,17 +121,18 @@ function [correlationCatalog] = buildCorrelationCatalog(seisCatalog,...
                             %resample waveform to target Sampling rate
                             crunchFactor = get(testWav,'freq') / targetSamplingRate;
                             crunchFactor = round(crunchFactor,4);
-                            if crunchFactor == 1
-                                Q = 1;
-                                P = 1;
-                            elseif crunchFactor == 0.5
-                                Q = 1;
-                                P = 2;
-                            elseif crunchFactor == 0.25
-                                Q = 1;
-                                P = 4;
-                            else
+                            % We can calculate the crunchFactor very
+                            % accurately and efficiently with symbolic
+                            % toolbox:
+                            if license('test', 'symbolic_toolbox')
                                 [Q, P] = numden(sym(crunchFactor));
+                            else
+                                crunchFactor = round( ...
+                                    crunchFactor, 9, "significant");
+                                n_decimals = length(char(string( ...
+                                    crunchFactor - double(int64((crunchFactor)))))) - 2;
+                                Q = crunchFactor * 10 ^ n_decimals;
+                                P = 1 * 10 ^ n_decimals;
                             end
                             Q = double(Q);
                             P = double(P);

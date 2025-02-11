@@ -4,7 +4,7 @@ function cOut = resampleNetworkCorrObject(c, targetSamplingRate)
 %   correlation object to a selected target sampling rate.
 % Input:
 %   c   : a network correlation object 
-%   targetSamplingRate: sampling rate to resample all traces to
+%   targetSamplingRate: sampling ratue to resample all traces to
 % Output:
 %   c2  : a network correlation object with resampled traces
 
@@ -30,21 +30,20 @@ function cOut = resampleNetworkCorrObject(c, targetSamplingRate)
             crunchFactor = get(wavs,'freq') ./ targetSamplingRate;
             crunchFactor = round(crunchFactor, 4);
 
-            % workaround so tht we don@t need symbolic toolbox in most cases
-            if crunchFactor == 1
-                Q = 1;
-                P = 1;
-            elseif crunchFactor == 0.5
-                Q = 1;
-                P = 2;
-            elseif crunchFactor == 0.25
-                Q = 1;
-                P = 4;
-            else
-                [Q, P] = numden(sym(crunchFactor));
+            % We can calculate the crunchFactor very accurately and 
+            % efficiently with symbolic toolbox:
+            if license('test', 'symbolic_toolbox')
                 if length(sym(crunchFactor)) > 20
                     crunchFactor = round(crunchFactor, 2);
                 end
+                [Q, P] = numden(sym(crunchFactor));
+            else
+                % workaround so that we don't need symbolic toolbox
+                crunchFactor = round(crunchFactor, 9, "significant");
+                n_decimals = length(char(string( ...
+                    crunchFactor - double(int64((crunchFactor)))))) - 2;
+                Q = crunchFactor * 10 ^ n_decimals;
+                P = 1 * 10 ^ n_decimals;
             end
 
             Q = double(Q);
@@ -52,6 +51,9 @@ function cOut = resampleNetworkCorrObject(c, targetSamplingRate)
             if all(Q==Q(1)) && all(P==P(1))
                 Q = Q(1); P = P(1);
                 D = double(wavs);
+                
+                
+                
                 ResampleD = resample(D,P,Q);
             end
 
