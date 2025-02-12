@@ -42,8 +42,8 @@ function cOut = resampleNetworkCorrObject(c, targetSamplingRate)
                 crunchFactor = round(crunchFactor, 9, "significant");
                 n_decimals = length(char(string( ...
                     crunchFactor - double(int64((crunchFactor)))))) - 2;
-                Q = crunchFactor * 10 ^ n_decimals;
-                P = 1 * 10 ^ n_decimals;
+                    Q = int32(crunchFactor * 10 ^ n_decimals);
+                    P = int32(1 * 10 ^ n_decimals);
             end
 
             Q = double(Q);
