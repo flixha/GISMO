@@ -41,9 +41,9 @@ function cOut = resampleNetworkCorrObject(c, targetSamplingRate)
                 % workaround so that we don't need symbolic toolbox
                 crunchFactor = round(crunchFactor, 9, "significant");
                 n_decimals = length(char(string( ...
-                    crunchFactor - double(int64((crunchFactor)))))) - 2;
-                    Q = int32(crunchFactor * 10 ^ n_decimals);
-                    P = int32(1 * 10 ^ n_decimals);
+                    crunchFactor - double(int64(crunchFactor))))) - 1;
+                Q = int32(crunchFactor * 10 ^ n_decimals);
+                P = int32(1 * 10 ^ n_decimals);
             end
 
             Q = double(Q);
