@@ -28,8 +28,12 @@ function w = load_miniseed(request)
       
       % Load waveforms from all these files
       for c=1:numel(filenamelist)
-         wtmp = []; 
-         wtmp = mseedfilename2waveform(thisfilename{1}, startTime, endTime);
+         wtmp = [];
+         try
+            wtmp = mseedfilename2waveform(thisfilename{1}, startTime, endTime);
+         catch ME
+             continue
+         end
          wtmp = reshape(wtmp, [1 numel(wtmp)]);
          wfiles = [wfiles wtmp];
       end
@@ -56,6 +60,8 @@ end
 
 function w = mseedfilename2waveform(thisfilename, snum, enum)
     read_with_obspy = false;
+    w = waveform();
+
     try
         s = ReadMSEEDFast(thisfilename); % written by Martin Mityska
      % s = rdseed(thisfilename); % written by Martin Mityska
@@ -63,7 +69,8 @@ function w = mseedfilename2waveform(thisfilename, snum, enum)
         % With blockette length error, (e.g., 'Product of known dimensions, 4096, not divisible 
         % into total number of elements, 277504.' - try to read with obspy instead:
         env_info = pyenv;
-        if (strcmp(ME.identifier, 'MATLAB:getReshapeDims:notDivisible')) && ...
+        if (strcmp(ME.identifier, 'MATLAB:getReshapeDims:notDivisible') || ...
+            strcmp(ME.identifier, 'MATLAB:badsubscript')) && ...
                 strcmp(env_info.Status, "Loaded")
             % Read with obspy
             stream = py.obspy.read(thisfilename);
@@ -81,11 +88,20 @@ function w = mseedfilename2waveform(thisfilename, snum, enum)
     for c=1:numel(s)
         if read_with_obspy
             trace = s{c};
+            try
+                data = int32(trace.data);
+            catch
+                warning("Cannot convert data in file %s read with obspy to Matlab dtype", ...
+                        thisfilename);
+                warning(ME.message)
+                return
+            end
+
             w(c, 1) = waveform( ...
                 ChannelTag(string(trace.stats.network), string(trace.stats.station), ...
                              string(trace.stats.location), string(trace.stats.channel)), ...
                 trace.stats.sampling_rate, epoch2datenum(trace.stats.starttime.timestamp), ...
-                int32(trace.data));
+                data);
         else
             w(c,1) = waveform( ...
                 ChannelTag(s(c).network, s(c).station, s(c).location, s(c).channel), ...
