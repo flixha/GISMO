@@ -53,10 +53,39 @@ function w = load_miniseed(request)
    end
 end
 
+
 function w = mseedfilename2waveform(thisfilename, snum, enum)
-    s = ReadMSEEDFast(thisfilename); % written by Martin Mityska
-     for c=1:numel(s)
-        w(c,1) = waveform(ChannelTag(s(c).network, s(c).station, s(c).location, s(c).channel), ...
-            s(c).sampleRate, epoch2datenum(s(c).startTime), s(c).data);
+    read_with_obspy = false;
+    try
+        s = ReadMSEEDFast(thisfilename); % written by Martin Mityska
+     % s = rdseed(thisfilename); % written by Martin Mityska
+    catch ME
+        % With blockette length error, (e.g., 'Product of known dimensions, 4096, not divisible 
+        % into total number of elements, 277504.' - try to read with obspy instead:
+        env_info = pyenv;
+        if (strcmp(ME.identifier, 'MATLAB:getReshapeDims:notDivisible')) && ...
+                strcmp(env_info.Status, "Loaded")
+            % Read with obspy
+            stream = py.obspy.read(thisfilename);
+            read_with_obspy = true;
+            s = cell(stream.traces);
+        else
+            throw(ME)
+        end
+    end
+    
+    for c=1:numel(s)
+        if read_with_obspy
+            trace = s{c};
+            w(c, 1) = waveform( ...
+                ChannelTag(string(trace.stats.network), string(trace.stats.station), ...
+                             string(trace.stats.location), string(trace.stats.channel)), ...
+                trace.stats.sampling_rate, epoch2datenum(trace.stats.starttime.timestamp), ...
+                int32(trace.data));
+        else
+            w(c,1) = waveform( ...
+                ChannelTag(s(c).network, s(c).station, s(c).location, s(c).channel), ...
+                s(c).sampleRate, epoch2datenum(s(c).startTime), s(c).data);
+        end
      end
 end
