@@ -69,6 +69,10 @@ function w = mseedfilename2waveform(thisfilename, snum, enum)
             stream = py.obspy.read(thisfilename);
             read_with_obspy = true;
             s = cell(stream.traces);
+        elseif (contains(ME.message, "MATLAB:FileIO:InvalidFid"))
+            warning(ME.message)
+            w = waveform();
+            return
         else
             throw(ME)
         end
