@@ -37,6 +37,10 @@ function w = load_miniseed(request)
          wtmp = reshape(wtmp, [1 numel(wtmp)]);
          wfiles = [wfiles wtmp];
       end
+      if isempty(wfiles)
+          w = waveform();
+          return
+      end
       w = combine(wfiles);
       
       % Extract based on time
