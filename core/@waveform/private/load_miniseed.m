@@ -32,6 +32,7 @@ function w = load_miniseed(request)
          try
             wtmp = mseedfilename2waveform(thisfilename{1}, startTime, endTime);
          catch ME
+             warning(ME.message)
              continue
          end
          wtmp = reshape(wtmp, [1 numel(wtmp)]);
@@ -64,18 +65,21 @@ end
 
 function w = mseedfilename2waveform(thisfilename, snum, enum)
     read_with_obspy = false;
+    read_with_matlab = false;
     w = waveform();
 
     try
         s = ReadMSEEDFast(thisfilename); % written by Martin Mityska
      % s = rdseed(thisfilename); % written by Martin Mityska
+        read_with_matlab = true;
     catch ME
         % With blockette length error, (e.g., 'Product of known dimensions, 4096, not divisible 
         % into total number of elements, 277504.' - try to read with obspy instead:
         env_info = pyenv;
-        if (strcmp(ME.identifier, 'MATLAB:getReshapeDims:notDivisible') || ...
-            strcmp(ME.identifier, 'MATLAB:badsubscript')) && ...
-                strcmp(env_info.Status, "Loaded")
+        % if (strcmp(ME.identifier, 'MATLAB:getReshapeDims:notDivisible') || ...
+        %     strcmp(ME.identifier, 'MATLAB:badsubscript')) && ...
+        %         strcmp(env_info.Status, "Loaded")
+        if ~read_with_matlab && strcmp(env_info.Status, "Loaded")
             % Read with obspy
             stream = py.obspy.read(thisfilename);
             read_with_obspy = true;
@@ -89,6 +93,7 @@ function w = mseedfilename2waveform(thisfilename, snum, enum)
         end
     end
     
+
     for c=1:numel(s)
         if read_with_obspy
             trace = s{c};
@@ -102,8 +107,8 @@ function w = mseedfilename2waveform(thisfilename, snum, enum)
             end
 
             w(c, 1) = waveform( ...
-                ChannelTag(string(trace.stats.network), string(trace.stats.station), ...
-                             string(trace.stats.location), string(trace.stats.channel)), ...
+                ChannelTag(char(trace.stats.network), char(trace.stats.station), ...
+                           char(trace.stats.location), char(trace.stats.channel)), ...
                 trace.stats.sampling_rate, epoch2datenum(trace.stats.starttime.timestamp), ...
                 data);
         else
