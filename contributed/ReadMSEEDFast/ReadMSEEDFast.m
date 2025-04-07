@@ -309,7 +309,7 @@ function [trace,timeVector] = DecodeSignal(encodedSignalMatrix, encodingFormat,i
             signalMatrix=reshape(signalMatrix,numel(encodedSignalMatrix(1,:))/4,[]);
 
             % read first int from every 64 int chunk (contains encoded nibbles)
-            Q=signalMatrix(1:16:size(signalMatrix(:,1)),:);
+            Q = signalMatrix(1:16:size(signalMatrix(:,1), 1),:);
             % reshape to one long column
             Q=reshape(Q,size(Q,1)*size(Q,2),1)';
             % prepare matrix Q for bitshift
