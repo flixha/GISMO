@@ -98,7 +98,15 @@ function w = mseedfilename2waveform(thisfilename, snum, enum)
         if read_with_obspy
             trace = s{c};
             try
-                data = int32(trace.data);
+                dtype = string(trace.data.dtype.name);
+                switch dtype
+                    case "int32"
+                        data = int32(trace.data.tolist);
+                    case "float32"
+                        data = double(trace.data.tolist);
+                    otherwise
+                        warning("Datatype from obspy miniseed trace not understood")
+                end
             catch
                 warning("Cannot convert data in file %s read with obspy to Matlab dtype", ...
                         thisfilename);
