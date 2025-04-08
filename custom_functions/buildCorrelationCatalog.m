@@ -22,6 +22,11 @@ function [correlationCatalog] = buildCorrelationCatalog(seisCatalog,...
     if size(eventI,1) > size(eventI,2)
         eventI = eventI';
     end
+
+    if size(eventI, 1) == 0 || size(eventI, 2) == 0
+        warning("No events left in catalog after selection")
+        return
+    end
     
     %for each event
     for j = eventI
@@ -42,8 +47,10 @@ function [correlationCatalog] = buildCorrelationCatalog(seisCatalog,...
         if size(wchannel,1) == size(wchannel,2) && size(wchannel,1) > 1
             wchannel = wchannel(:,1);
         end
+        wstation = string(wstation');
         wchannel = char(wchannel);
         wcomponent = cellstr(wchannel(:,end));
+        
         %for each station
         for k=1:1:length(cstation)
             %find the trigger
