@@ -32,6 +32,8 @@ addpath(fullfile(gismopath,'core'));
 % ADD A PATH TO EACH DIRCTORY IN CONTRIBUTED
 addContributed(gismopath,'contributed');
 
+addContributed(gismopath,'custom_functions');
+
 % ADD A PATH TO EACH DIRECTORY IN CONTRIBUTED_ANTELOPE
 if exist('dbopen','file') && exist('trload_css','file'); %  test for antelope
   addContributed(gismopath,'contributed_antelope');
