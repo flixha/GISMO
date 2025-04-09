@@ -52,8 +52,18 @@ function cOut = resampleNetworkCorrObject(c, targetSamplingRate)
                 Q = Q(1); P = P(1);
                 D = double(wavs);
                 
-                
-                
+                % Q and P can't be arbritrarily long; check if they need to
+                % be rounded / "truncated":
+                max_fact = Q .* P;
+                if any(max_fact > 2^31)
+                    cor_fact = max(Q, P);
+                    % Q = round(Q ./ 2^32);
+                    % P = round(P ./ 2^32);
+                    Q = round(Q ./ cor_fact * 2^15);
+                    P = round(P ./ cor_fact * 2^15);
+                elseif any(Q == 0) || any(P == 0)
+                    error('Resampling-coefficient cannot be zero')
+                end
                 ResampleD = resample(D,P,Q);
             end
 
@@ -61,7 +71,7 @@ function cOut = resampleNetworkCorrObject(c, targetSamplingRate)
                 wav = wavs(w);
                 % put back into waveform, but don't forget to 
                 % update the frequency               
-                wav = set(wav,'data',ResampleD(:,w), 'Freq',...
+                wav = set(wav,'data', ResampleD(:,w), 'Freq',...
                     targetSamplingRate);
                 wavs(w) = wav;
             end

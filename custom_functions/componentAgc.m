@@ -32,9 +32,11 @@ end
 
 ncc = length(comp);
 cstation = fieldnames(c.(comp{1}));
+% throw out stations without any event information:
+cstation = cstation(~strcmpi(cstation, 'cat'));
 
 for s = 1:1:length(cstation)
-    if ~isa(c.(comp{1}).(cstation{s}).corr,'correlation')
+    if ~isa(c.(comp{1}).(cstation{s}).corr, 'correlation')
         error('First input must be a correlation object');
     end
     

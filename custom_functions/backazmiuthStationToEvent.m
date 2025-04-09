@@ -1,4 +1,4 @@
-function baz = backazmiuthStationToEvent(stationstr, catalog)
+function baz = backazmiuthStationToEvent(stationstr, catalog, is_synthetic)
 
 % backazmiuthStationToEvent returns back azimuth between a station and a
 %   set of events.
@@ -9,13 +9,19 @@ function baz = backazmiuthStationToEvent(stationstr, catalog)
 %   baz      : array of back azimuth values for all events in relation to
 %               the station.
 
-    if exist('stations.mat', 'file') == 2
-    %     load('stations.mat');
-        load stations.mat stations;
-    else
-        stations = readtable('station.dat');
-        stations.Properties.VariableNames = {'name' 'lat' 'lon'};
-    end
+	if is_synthetic
+    stations = readtable(...
+        '/Volumes/MacHD1/Users/felix/Documents/SEM/MAtlab/station.dat');
+    stations.Properties.VariableNames = {'name' 'lat' 'lon'};
+	else
+		if exist('stations.mat', 'file') == 2
+		%     load('stations.mat');
+		    load stations.mat stations;
+		else
+		    stations = readtable('station.dat');
+		    stations.Properties.VariableNames = {'name' 'lat' 'lon'};
+		end
+end
 
     if isempty(stations.name) || isempty(stationstr)
         baz = [];

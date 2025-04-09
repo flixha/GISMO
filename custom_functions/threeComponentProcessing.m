@@ -1,5 +1,5 @@
 function c2 = threeComponentProcessing(c2, cstation, n, J, K, dt, width,...
-    adjustAlignment, gainControl)
+    adjustAlignment, gainControl, is_synthetic)
 
 % threeComponentProcessing: create three-component objects for each of the
 %   records in the network-correlation object, applies rotation and a
@@ -82,7 +82,7 @@ for k=1:1:length(cstation)
     % BackAzimuth from great circle arc between station and
     % hypoDD-location
     evcat = c2.Z.(cstation{k}).cat;
-    backazimuth = backazmiuthStationToEvent(cstation{k}, evcat);
+    backazimuth = backazmiuthStationToEvent(cstation{k}, evcat, is_synthetic);
         
     R = Z;
     T = Z;

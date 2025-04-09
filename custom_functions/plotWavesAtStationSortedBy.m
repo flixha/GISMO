@@ -617,7 +617,7 @@ end
 
 nYTicks = length(ax1.YTickLabel);
 maxNYTicks = 50;
-if nYTicks > maxNYTicks
+if nYTicks > maxNYTicks % & ~isStackedCatalog
     yTickStep = round(nYTicks/maxNYTicks);
     newYTickLabels = ax1.YTickLabel(1:yTickStep:end,:);
     ax1.YTick = ax1.YTick(1:yTickStep:end);
