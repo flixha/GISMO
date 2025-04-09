@@ -102,9 +102,9 @@ function [correlationCatalog] = buildCorrelationCatalog(seisCatalog,...
                 
                 if ~isnan(PTrig)
                     %find the waveform
-                    staWavI = find(strcmp(wstation,cstation{k}));
-                    staCompWavI = find(strcmp(wstation,cstation{k}) &...
-                        strcmp(wcomponent,corcomp{ncc}));
+                    staWavI = find(strcmp(wstation, cstation{k}));
+                    staCompWavI = find(strcmp(wstation, cstation{k}) &...
+                                       strcmp(wcomponent, getCorCompValue(corcomp{ncc})));
                     if ~isempty(staCompWavI)
                         % if there are duplicate waveforms, then select the
                         % the longer, or the more densely sampled one, for 
@@ -164,7 +164,7 @@ function [correlationCatalog] = buildCorrelationCatalog(seisCatalog,...
                         testWav = waveform();
                         ct = get(seisCatalog.waveforms{j}(staWavI(1)),'ChannelTag');
                         ct = ct(1);
-                        ct.channel = [ct.channel(1:end-1), corcomp{ncc}];
+                        ct.channel = [ct.channel(1:end-1), getCorCompValue(corcomp{ncc})];
                         testWav = set(testWav,'ChannelTag', ct);
                         testWav = set(testWav,'data', NaN(120*targetSamplingRate,1));
                         testWav = set(testWav,'freq',targetSamplingRate);
