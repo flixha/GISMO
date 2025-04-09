@@ -1,6 +1,19 @@
 function newax = formatThreeComponentWaveformFigures(ax, stationORevent,...
     plotComp, plotType, plotArrivals, plotEnvelope, labelArrivals,...
-    fileNameAddition0, printFigure, xlims)
+    fileNameAddition0, options)
+
+    arguments
+        ax
+        stationORevent
+        plotComp
+        plotType
+        plotArrivals = false
+        plotEnvelope = false
+        labelArrivals = false
+        fileNameAddition0 = ''
+        options.printFigure = false
+        options.xlims = []
+    end
 
     imagePaperA4 = false;
     for k=1:1:numel(ax)
@@ -86,9 +99,7 @@ function newax = formatThreeComponentWaveformFigures(ax, stationORevent,...
         end
     end
     drawnow;
-    
-%     if numel(ax) > numel(plotComp)
-        
+
 
     np = numel(plotComp);
     newax = ax;
@@ -109,7 +120,10 @@ function newax = formatThreeComponentWaveformFigures(ax, stationORevent,...
             if k <= np
                 newax(k).Position(1) = (1 - 0.145)/np * (k-1)+0.055;
                 newax(k).Position(3) = (1-0.15)/np - 0.01;
-                newax(k).XLim = xlims;
+                if ~isempty(options.xlims)
+                    xlims = options.xlims;
+                    newax(k).XLim = xlims;
+                end
             else
                 newax(k).Position(1) = (1 - 0.145)/np * (np)+0.055;
                 newax(k).Position(3) = 0.085;
@@ -169,7 +183,7 @@ function newax = formatThreeComponentWaveformFigures(ax, stationORevent,...
         fileNameAddition2 = '';
     end
 
-    if printFigure
+    if options.printFigure
         figName = ['Figures/', fileNameAddition0, fileNameAddition1,...
             fileNameAddition2, '_', plotType, '_', stationORevent, '_',...
             compName];
