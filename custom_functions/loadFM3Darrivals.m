@@ -40,7 +40,7 @@ for jev = jEvents
     end
     
     if folderPerEvent
-        eventFolder = ['/Event_', sprintf('%03d', jev),'/'];
+        eventFolder = ['/Event_', sprintf('%04d', jev),'/'];
     else
         eventFolder = '';
     end
@@ -145,8 +145,8 @@ for jev = jEvents
 
     % find receiver name in station-list by their location
     for j=1:1:nrec
-        stIdx = find ( stations.lat == receivers.lat(j) &...
-            stations.lon == receivers.lon(j));
+        stIdx = find (abs(stations.lat - receivers.lat(j)) < 0.0001 &...
+                      abs(stations.lon - receivers.lon(j)) < 0.0001);
         receivers.name(j) = stations.name(stIdx(1));
     end
 
